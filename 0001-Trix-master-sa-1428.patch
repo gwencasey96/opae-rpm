@@ -1,0 +1,151 @@
+From 93c24bd9586db6febce0d4af7201479286b98334 Mon Sep 17 00:00:00 2001
+From: trixirt <tom@bumblecow.com>
+Date: Fri, 7 Feb 2020 10:11:36 -0800
+Subject: [PATCH] Trix/master/sa (#1428)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+* Rename element 'type' to 'sensor_type'
+
+For consistency, the element 'type' also called 'sensor_type'.
+Use sensor_type because it is more descriptive.
+
+* Consolidate sensor type enums to BMC_SENSOR_TYPE
+
+In the latest compilers, both gcc and clang there is this error
+
+.../libopae/plugins/xfpga/metrics/bmc/bmc.c: In function ‘bmcGetSDRDetails’:
+.../libopae/plugins/xfpga/metrics/bmc/bmc.c:475:16: error: implicit conversion from ‘BMC_TYPE’ to ‘BMC_SENSOR_TYPE’ [-Werror=enum-conversion]
+  475 |  details->type = this_val->sensor_type;
+      |                ^
+cc1: all warnings being treated as errors
+
+To fix this problem, use a common enum type.
+BMC_SENSOR_TYPE was picked because it appears to be the public interface.
+
+Co-authored-by: Ananda Ravuri <33236856+anandaravuri@users.noreply.github.com>
+---
+ libopae/plugins/xfpga/metrics/bmc/bmc.c       | 7 +++----
+ libopae/plugins/xfpga/metrics/bmc/bmc_types.h | 4 ++--
+ libopae/plugins/xfpga/metrics/bmc/bmcinfo.c   | 4 ++--
+ libopae/plugins/xfpga/metrics/bmc/bmcinfo.h   | 5 ++---
+ libopae/plugins/xfpga/metrics/metrics_utils.c | 4 ++--
+ 5 files changed, 11 insertions(+), 13 deletions(-)
+
+diff --git a/usr/libopae/plugins/xfpga/metrics/bmc/bmc.c b/usr/libopae/plugins/xfpga/metrics/bmc/bmc.c
+index d2fea13b..c7bc869e 100644
+--- a/usr/libopae/plugins/xfpga/metrics/bmc/bmc.c
++++ b/usr/libopae/plugins/xfpga/metrics/bmc/bmc.c
+@@ -328,9 +328,8 @@ fpga_result bmcThresholdsTripped(bmc_values_handle values,
+ 		}
+ 
+ 		rets[index].sensor_number = i;
+-		rets[index].type = SDR_SENSOR_IS_POWER(&sdr->body)
+-					   ? BMC_POWER
+-					   : BMC_THERMAL;
++		rets[index].sensor_type = SDR_SENSOR_IS_POWER(&sdr->body)
++			? BMC_POWER : BMC_THERMAL;
+ 		rets[index].which_thresholds = indicators;
+ 		index++;
+ 	}
+@@ -472,7 +471,7 @@ fpga_result bmcGetSDRDetails(bmc_values_handle values, uint32_t sensor_number,
+ 	this_val = vals->values[sensor_number];
+ 
+ 	details->sensor_number = sensor_number;
+-	details->type = this_val->sensor_type;
++	details->sensor_type = this_val->sensor_type;
+ 	details->name = this_val->name;
+ 	details->units = this_val->units;
+ 	details->M = this_val->M;
+diff --git a/usr/libopae/plugins/xfpga/metrics/bmc/bmc_types.h b/usr/libopae/plugins/xfpga/metrics/bmc/bmc_types.h
+index 274913d4..16c5ce86 100644
+--- a/usr/libopae/plugins/xfpga/metrics/bmc/bmc_types.h
++++ b/usr/libopae/plugins/xfpga/metrics/bmc/bmc_types.h
+@@ -74,7 +74,7 @@ typedef enum {
+ 
+ typedef struct {
+ 	uint32_t sensor_number;
+-	BMC_SENSOR_TYPE type;
++	BMC_SENSOR_TYPE sensor_type;
+ 	uint32_t which_thresholds; // bit vector
+ } tripped_thresholds;
+ 
+@@ -94,7 +94,7 @@ typedef struct _thresholds {
+ 
+ typedef struct _sdr_details {
+ 	uint32_t sensor_number;
+-	BMC_SENSOR_TYPE type;
++	BMC_SENSOR_TYPE sensor_type;
+ 	char *name;
+ 	wchar_t *units;
+ 	double M;
+diff --git a/usr/libopae/plugins/xfpga/metrics/bmc/bmcinfo.c b/usr/libopae/plugins/xfpga/metrics/bmc/bmcinfo.c
+index 2d053fe3..cddca1ea 100644
+--- a/usr/libopae/plugins/xfpga/metrics/bmc/bmcinfo.c
++++ b/usr/libopae/plugins/xfpga/metrics/bmc/bmcinfo.c
+@@ -178,8 +178,8 @@ Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
+ 	val->sensor_number = key->sensor_number;
+ 	val->sensor_type =
+ 		SDR_SENSOR_IS_TEMP(body)
+-			? _BMC_THERMAL
+-			: SDR_SENSOR_IS_POWER(body) ? _BMC_POWER : _BMC_SENSORS;
++			? BMC_THERMAL
++			: SDR_SENSOR_IS_POWER(body) ? BMC_POWER : BMC_ALL;
+ 
+ 	switch (body->sensor_units_1.bits.analog_data_format) {
+ 	case 0x0: // unsigned
+diff --git a/usr/libopae/plugins/xfpga/metrics/bmc/bmcinfo.h b/usr/libopae/plugins/xfpga/metrics/bmc/bmcinfo.h
+index 52f78dd7..f09cd891 100644
+--- a/usr/libopae/plugins/xfpga/metrics/bmc/bmcinfo.h
++++ b/usr/libopae/plugins/xfpga/metrics/bmc/bmcinfo.h
+@@ -33,6 +33,7 @@
+ 
+ #include <opae/fpga.h>
+ #include <wchar.h>
++#include "bmc_types.h"
+ 
+ #ifdef __cplusplus
+ extern "C" {
+@@ -64,8 +65,6 @@ extern "C" {
+ #define SYSFS_AVMMI_DIR "avmmi-bmc.*.auto"
+ #define SYSFS_THERMAL_FILE "thermal_mgmt/temperature"
+ 
+-typedef enum { _BMC_THERMAL, _BMC_POWER, _BMC_SENSORS } BMC_TYPE;
+-
+ #pragma pack(push, 1)
+ 
+ // Structures used to read and decode Sensor Data Records (SDR)
+@@ -517,7 +516,7 @@ typedef struct _Values {
+ 		uint64_t i_val;
+ 	} value;
+ 	uint8_t sensor_number;
+-	BMC_TYPE sensor_type;
++	BMC_SENSOR_TYPE sensor_type;
+ 	sensor_value_type val_type;
+ 	struct _sdr_content *sdr;
+ } Values;
+diff --git a/usr/libopae/plugins/xfpga/metrics/metrics_utils.c b/usr/libopae/plugins/xfpga/metrics/metrics_utils.c
+index a5d70102..e9deb917 100644
+--- a/usr/libopae/plugins/xfpga/metrics/metrics_utils.c
++++ b/usr/libopae/plugins/xfpga/metrics/metrics_utils.c
+@@ -685,14 +685,14 @@ fpga_result  enum_bmc_metrics_info(struct _fpga_handle *_handle,
+ 		result = xfpga_bmcGetSDRDetails(_handle, values, x, &details);
+ 
+ 
+-		if (details.type == BMC_THERMAL) {
++		if (details.sensor_type == BMC_THERMAL) {
+ 
+ 			metric_type = FPGA_METRIC_TYPE_THERMAL;
+ 			snprintf_s_s(group_name, sizeof(group_name), "%s", THERLGMT);
+ 			snprintf_s_s(units, sizeof(units), "%s", TEMP);
+ 			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", THERLGMT, details.name);
+ 
+-		} else if (details.type == BMC_POWER) {
++		} else if (details.sensor_type == BMC_POWER) {
+ 
+ 			metric_type = FPGA_METRIC_TYPE_POWER;
+ 			snprintf_s_s(group_name, sizeof(group_name), "%s", PWRMGMT);
+-- 
+2.20.1
+
