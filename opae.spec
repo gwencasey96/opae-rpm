@@ -72,15 +72,14 @@ OPAE samples
 %autosetup -n %{name}-%{version}-%{release}
 
 %build
-rm -rf mybuild
-mkdir mybuild
-cd mybuild
-%cmake .. -DBUILD_ASE=OFF -DOPAE_INSTALL_RPATH=OFF
+mkdir -p _build
+cd _build
+%cmake ../usr -DBUILD_ASE=OFF -DOPAE_INSTALL_RPATH=OFF
 make -j
 
 %install
 mkdir -p %{buildroot}%{_datadir}/opae
-cp RELEASE_NOTES.md %{buildroot}%{_datadir}/opae/RELEASE_NOTES.md
+cp ./usr/RELEASE_NOTES.md %{buildroot}%{_datadir}/opae/RELEASE_NOTES.md
 
 mkdir -p %{buildroot}%{_usr}/src/opae/cmake/modules
 for s in FindDBus.cmake \
@@ -96,15 +95,15 @@ for s in FindDBus.cmake \
          compiler_config.cmake \
          libraries_config.cmake
 do
-  cp "cmake/modules/${s}" %{buildroot}%{_usr}/src/opae/cmake/modules
+  cp "usr/cmake/modules/${s}" %{buildroot}%{_usr}/src/opae/cmake/modules
 done
 
 mkdir -p %{buildroot}%{_usr}/src/opae/samples
-cp samples/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/
-cp samples/hello_events.c %{buildroot}%{_usr}/src/opae/samples/
-cp samples/object_api.c %{buildroot}%{_usr}/src/opae/samples/
+cp usr/samples/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/
+cp usr/samples/hello_events.c %{buildroot}%{_usr}/src/opae/samples/
+cp usr/samples/object_api.c %{buildroot}%{_usr}/src/opae/samples/
 
-cd mybuild
+cd _build
 make DESTDIR=%{buildroot} install
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/
 mv %{buildroot}%{_usr}/lib/systemd/system/fpgad.service %{buildroot}%{_sysconfdir}/systemd/system/fpgad.service
