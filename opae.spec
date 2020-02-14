@@ -69,7 +69,7 @@ OPAE samples
 
 
 %prep
-%autosetup -n %{name}
+%autosetup -n %{name}-%{version}-%{release}
 
 %build
 rm -rf mybuild
