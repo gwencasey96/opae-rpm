@@ -76,7 +76,7 @@ OPAE samples
 %build
 mkdir -p _build
 cd _build
-%cmake ../usr -DBUILD_ASE=OFF -DOPAE_INSTALL_RPATH=OFF
+%cmake ../usr -DBUILD_ASE=OFF -DOPAE_INSTALL_RPATH=OFF -DBUILD_LIBOPAE_PY=OFF
 make -j
 
 %install
