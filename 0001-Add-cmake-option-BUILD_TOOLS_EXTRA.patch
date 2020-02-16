@@ -1,0 +1,93 @@
+From 5c239aec503e7e14f371b8dc91f4dedaf5ac84f4 Mon Sep 17 00:00:00 2001
+From: Tom Rix <trix@redhat.com>
+Date: Sun, 16 Feb 2020 12:49:01 -0500
+Subject: [PATCH] Add cmake option BUILD_TOOLS_EXTRA
+
+This option controls if the applications in tools/extra are built.
+The default is 'ON'
+
+Some tools depend on hwloc.  When the hwloc version changes,
+it is necessary to disable building extra/tools while the updating
+the codebase.
+
+This works around a problem with hwloc 2.0 error when building on
+fedora 31
+
+.../tools/extra/pac/fpgabist/dma_vc/fpga_dma_test.c:707:7: error: 'HWLOC_TOPOLOGY_FLAG_IO_DEVICES' undeclared (first use in this function); did you mean 'HWLOC_TOPOLOGY_FLAG_IS_THISSYSTEM'?
+  707 |       HWLOC_TOPOLOGY_FLAG_IO_DEVICES);
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |       HWLOC_TOPOLOGY_FLAG_IS_THISSYSTEM
+---
+ CMakeLists.txt       |  3 +++
+ tools/CMakeLists.txt | 42 ++++++++++++++++++++++--------------------
+ 2 files changed, 25 insertions(+), 20 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6d395c05..6bea27c1 100644
+--- a/usr/CMakeLists.txt
++++ b/usr/CMakeLists.txt
+@@ -173,6 +173,9 @@ endif()
+ option(BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
+ mark_as_advanced(BUILD_PYTHON_DIST)
+ 
++option(BUILD_TOOLS_EXTRA "Enable building of the extra tools" ON)
++mark_as_advanced(BUILD_TOOLS_EXTRA)
++
+ add_subdirectory(platforms)
+ add_subdirectory(tools)
+ 
+diff --git a/tools/CMakeLists.txt b/tools/CMakeLists.txt
+index 001bf2e4..655e5b7a 100644
+--- a/usr/tools/CMakeLists.txt
++++ b/usr/tools/CMakeLists.txt
+@@ -38,25 +38,27 @@ add_subdirectory(base/fpgaport)
+ add_subdirectory(base/fpgametrics)
+ 
+ # extra
+-add_subdirectory(extra/coreidle)
+-add_subdirectory(extra/userclk)
+-add_subdirectory(extra/packager)
+-if (BUILD_PYTHON_DIST)
+-    add_subdirectory(extra/pypackager)
+-	add_subdirectory(extra/pyfpgadiag)
+-endif()
+-add_subdirectory(extra/c++utils)
+-add_subdirectory(extra/fpgadiag)
+-add_subdirectory(extra/mmlink)
+-add_subdirectory(extra/ras)
++if (BUILD_TOOLS_EXTRA)
++  add_subdirectory(extra/coreidle)
++  add_subdirectory(extra/userclk)
++  add_subdirectory(extra/packager)
++  if (BUILD_PYTHON_DIST)
++      add_subdirectory(extra/pypackager)
++	  add_subdirectory(extra/pyfpgadiag)
++  endif()
++  add_subdirectory(extra/c++utils)
++  add_subdirectory(extra/fpgadiag)
++  add_subdirectory(extra/mmlink)
++  add_subdirectory(extra/ras)
+ 
+-# integrated
+-add_subdirectory(extra/integrated/hssi)
++  # integrated
++  add_subdirectory(extra/integrated/hssi)
+ 
+-# pac
+-add_subdirectory(extra/pac/fpgaflash)
+-if (BUILD_PYTHON_DIST)
+-    add_subdirectory(extra/pac/pyfpgaflash)
+-endif()
+-add_subdirectory(extra/pac/pac_hssi_config)
+-add_subdirectory(extra/pac/fpgabist)
++  # pac
++  add_subdirectory(extra/pac/fpgaflash)
++  if (BUILD_PYTHON_DIST)
++      add_subdirectory(extra/pac/pyfpgaflash)
++  endif()
++  add_subdirectory(extra/pac/pac_hssi_config)
++  add_subdirectory(extra/pac/fpgabist)
++endif()  
+-- 
+2.24.1
+
