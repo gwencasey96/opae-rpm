@@ -9,6 +9,7 @@ Requires:       uuid, json-c, python
 URL:            https://github.com/OPAE/%{name}-sdk
 Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{release}/%{name}-%{version}-%{release}.tar.gz
 Patch0:         0001-Trix-master-sa-1428.patch
+Patch1:         0001-Check-if-.git-directory-exists-before-finding-the-gi.patch
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
@@ -72,6 +73,7 @@ OPAE samples
 %prep
 %setup -q -n %{name}-%{version}-%{release}
 %patch0 -p1
+%patch1 -p1
 
 %build
 mkdir -p _build
