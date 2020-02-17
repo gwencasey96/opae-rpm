@@ -160,7 +160,6 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %files samples
 %defattr(-,root,root,-)
 %{_bindir}/hello_fpga
-%{_bindir}/hello_events
 
 
 %changelog
