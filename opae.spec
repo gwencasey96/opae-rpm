@@ -139,10 +139,9 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %doc %{_datadir}/opae/RELEASE_NOTES.md
 %{_libdir}/libopae-c.so*
 %{_libdir}/libopae-cxx-core.so*
-%dir %{_libdir}/opae
-%{_libdir}/opae/libxfpga.so*
+%{_libdir}/libxfpga.so*
 %{_libdir}/libbmc.so*
-%{_libdir}/opae/libmodbmc.so*
+%{_libdir}/libmodbmc.so*
 %{_libdir}/libbitstream.so*
 %{_libdir}/libboard_rc.so*
 %{_libdir}/libboard_vc.so*
@@ -170,9 +169,8 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
 %config(noreplace) %{_sysconfdir}/systemd/system/fpgad.service
 %{_libdir}/libfpgad-api.so*
-%dir %{_libdir}/opae
-%{_libdir}/opae/libfpgad-xfpga.so*
-%{_libdir}/opae/libfpgad-vc.so*
+%{_libdir}/libfpgad-xfpga.so*
+%{_libdir}/libfpgad-vc.so*
 
 %files tools-extra
 %defattr(-,root,root,-)
