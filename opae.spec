@@ -151,6 +151,7 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_bindir}/fpgainfo*
 %{_bindir}/fpgametrics*
 %{_bindir}/fpgad*
+%{_bindir}/fpgaport*
 %config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
 %config(noreplace) %{_sysconfdir}/systemd/system/fpgad.service
