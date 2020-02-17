@@ -1,0 +1,22 @@
+From a33e69a4d9de58691b306667aab2cd96327d939f Mon Sep 17 00:00:00 2001
+From: Tom Rix <trix@redhat.com>
+Date: Mon, 17 Feb 2020 11:38:21 -0500
+Subject: [PATCH] Change to explictly to python3
+
+---
+ tools/base/fpgaport/fpgaport | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/base/fpgaport/fpgaport b/tools/base/fpgaport/fpgaport
+index af0beafd..bbb47654 100644
+--- a/usr/tools/base/fpgaport/fpgaport
++++ b/usr/tools/base/fpgaport/fpgaport
+@@ -1,4 +1,4 @@
+-#! /usr/bin/env python
++#! /usr/bin/python3
+ # Copyright(c) 2017, Intel Corporation
+ #
+ # Redistribution  and  use  in source  and  binary  forms,  with  or  without
+-- 
+2.24.1
+

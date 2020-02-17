@@ -1,0 +1,38 @@
+From 364876038d634923f8b06fc7b00bf28ec54a27e5 Mon Sep 17 00:00:00 2001
+From: Tom Rix <trix@redhat.com>
+Date: Mon, 17 Feb 2020 11:25:24 -0500
+Subject: [PATCH] Work around a problem with python 3.7
+
+---
+ platforms/scripts/CMakeLists.txt | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/platforms/scripts/CMakeLists.txt b/platforms/scripts/CMakeLists.txt
+index 378cd4ea..35cffc16 100644
+--- a/usr/platforms/scripts/CMakeLists.txt
++++ b/usr/platforms/scripts/CMakeLists.txt
+@@ -27,6 +27,8 @@
+ cmake_minimum_required(VERSION 2.8.12)
+ include(packaging)
+ 
++# Broken on 3.7
++if (NOT TRUE)
+ 
+ ## All the scripts to install that aren't zipped, just copied.
+ set(PLATFORM_SCRIPTS
+@@ -47,7 +49,6 @@ foreach(SRC ${PLATFORM_SCRIPTS})
+           COMPONENT platform)
+ endforeach(SRC)
+ 
+-
+ ## Zip afu_platform_config and afu_platform_info with libraries.
+ 
+ # The set of files to include in the zip file.  Pass the name of AFU_PL_CFG
+@@ -77,3 +78,4 @@ foreach(SCRIPT afu_platform_config afu_platform_info)
+           DESTINATION bin
+           COMPONENT platform)
+ endforeach(SCRIPT)
++endif()
+-- 
+2.24.1
+
