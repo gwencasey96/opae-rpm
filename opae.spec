@@ -144,6 +144,15 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_usr}/src/opae/samples/hello_events.c
 %{_usr}/src/opae/samples/object_api.c
 %{_usr}/src/opae/cmake/modules/*
+%dir %{_datadir}/opae/platform
+%dir %{_datadir}/opae/platform/afu_top_ifc_db
+%{_datadir}/opae/platform/afu_top_ifc_db/*
+%dir %{_datadir}/opae/platform/platform_db
+%{_datadir}/opae/platform/platform_db/*
+%dir %{_datadir}/opae/platform/platform_if
+%{_datadir}/opae/platform/platform_if/*
+%dir %{_datadir}/opae/platform/platform_if/par
+%{_datadir}/opae/platform/platform_if/par/*
 
 %files tools
 %defattr(-,root,root,-)
