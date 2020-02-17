@@ -123,6 +123,7 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %dir %{_datadir}/opae
 %doc %{_datadir}/opae/RELEASE_NOTES.md
 %{_libdir}/libopae-c.so*
+%{_libdir}/libopae-c-ase.so*
 %{_libdir}/libopae-cxx-core.so*
 %{_libdir}/libxfpga.so*
 %{_libdir}/libbmc.so*
