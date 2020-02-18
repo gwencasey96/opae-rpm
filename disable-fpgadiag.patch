@@ -1,0 +1,11 @@
+--- opae-1.4.0-1.orig/usr/tools/CMakeLists.txt	2020-02-18 15:18:51.072467454 -0500
++++ opae-1.4.0-1/usr/tools/CMakeLists.txt	2020-02-18 15:19:05.852634387 -0500
+@@ -46,7 +46,7 @@
+ #	add_subdirectory(extra/pyfpgadiag)
+ #endif()
+ add_subdirectory(extra/c++utils)
+-add_subdirectory(extra/fpgadiag)
++#add_subdirectory(extra/fpgadiag)
+ add_subdirectory(extra/mmlink)
+ add_subdirectory(extra/ras)
+ 

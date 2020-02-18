@@ -16,7 +16,7 @@ Patch4:         0001-Add-cmake-option-BUILD_TOOLS_EXTRA.patch
 Patch5:         0001-Work-around-a-problem-with-python-3.7.patch
 Patch6:         0001-Change-to-explictly-to-python3.patch
 Patch7:         fix-hwloc-20.patch
-
+Patch8:         disable-fpgadiag.patch
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
@@ -100,6 +100,7 @@ OPAE samples
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
 
 %build
 mkdir -p _build
