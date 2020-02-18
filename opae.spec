@@ -1,4 +1,4 @@
-Summary:        Open Programmable Acceleration Engine (OPAE)
+Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
 Version:        1.4.0
 Release:        1
@@ -25,8 +25,21 @@ BuildRequires:  python-sphinx
 BuildRequires:  doxygen
 
 %description
-Runtime libraries for OPAE applications
+Open Programmable Acceleration Engine (OPAE) is a software framework
+for managing and accessing programmable accelerators (FPGAs).
+Its main parts are:
 
+* OPAE Software Development Kit (OPAE SDK) (this package)
+* OPAE Linux driver for Intel(R) Xeon(R) CPU with
+  Integrated FPGAs and Intel(R) PAC with Arria(R) 10 GX FPGA
+* Basic Building Block (BBB) library for accelerating AFU
+
+OPAE SDK is a collection of libraries and tools to facilitate the
+development of software applications and accelerators using OPAE.
+It provides a library implementing the OPAE C API for presenting a
+streamlined and easy-to-use interface for software applications to
+discover, access, and manage FPGA devices and accelerators using
+the OPAE software stack.
 
 %package devel
 Summary:    OPAE headers, sample source, and documentation
