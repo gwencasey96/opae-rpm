@@ -12,7 +12,6 @@ Patch0:         0001-upstreaming-trim-down-to-the-files-for-1.4.1.patch
 Patch1:         0001-upstreaming-fix-rpmlint-errors.patch
 Patch2:         0001-Trix-master-sa-1428.patch
 Patch3:         0001-Check-if-.git-directory-exists-before-finding-the-gi.patch
-Patch4:         0001-Add-cmake-option-BUILD_TOOLS_EXTRA.patch
 Patch5:         0001-Work-around-a-problem-with-python-3.7.patch
 Patch6:         0001-Change-to-explictly-to-python3.patch
 Patch7:         fix-hwloc-20.patch
@@ -97,7 +96,6 @@ OPAE samples
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-#%patch4 -p1
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
@@ -161,7 +159,6 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %dir %{_datadir}/opae
 %doc %{_datadir}/opae/RELEASE_NOTES.md
 %{_libdir}/libopae-c.so*
-%{_libdir}/libopae-c-ase.so*
 %{_libdir}/libopae-cxx-core.so*
 %{_libdir}/opae/libxfpga.so*
 %{_libdir}/libbmc.so*
@@ -182,15 +179,6 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_usr}/src/opae/samples/hello_events.c
 %{_usr}/src/opae/samples/object_api.c
 %{_usr}/src/opae/cmake/modules/*
-%dir %{_datadir}/opae/platform
-%dir %{_datadir}/opae/platform/afu_top_ifc_db
-%{_datadir}/opae/platform/afu_top_ifc_db/*
-%dir %{_datadir}/opae/platform/platform_db
-%{_datadir}/opae/platform/platform_db/*
-%dir %{_datadir}/opae/platform/platform_if
-%{_datadir}/opae/platform/platform_if/*
-%dir %{_datadir}/opae/platform/platform_if/par
-%{_datadir}/opae/platform/platform_if/par/*
 
 %files tools
 %defattr(-,root,root,-)
@@ -198,7 +186,6 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_bindir}/fpgainfo*
 %{_bindir}/fpgametrics*
 %{_bindir}/fpgad*
-%{_bindir}/fpgaport*
 %config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
 %config(noreplace) %{_sysconfdir}/systemd/system/fpgad.service
@@ -219,20 +206,12 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_bindir}/fpga_dma_vc_test
 %{_bindir}/bist
 %{_bindir}/fpgabist
-%{_bindir}/fpgadiag
 %{_bindir}/hssi_config
 %{_bindir}/hssi_loopback
 %{_bindir}/mmlink
-%{_bindir}/nlb0
-%{_bindir}/nlb3
-%{_bindir}/nlb7
-%{_bindir}/mactest
-%{_bindir}/fpgalpbk
-%{_bindir}/fpgastats
 %{_bindir}/ras
 %{_bindir}/userclk
 %{_libdir}/libhssi*
-%{_libdir}/libopae-c++-nlb.so*
 %{_libdir}/libopae-c++-utils.so*
 %dir %{_datadir}/opae
 
