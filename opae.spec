@@ -14,6 +14,7 @@ Patch2:         0001-Check-if-.git-directory-exists-before-finding-the-gi.patch
 Patch3:         0001-Add-cmake-option-BUILD_TOOLS_EXTRA.patch
 Patch4:         0001-Work-around-a-problem-with-python-3.7.patch
 Patch5:         0001-Change-to-explictly-to-python3.patch
+Patch6:         fix-hwloc-20.patch
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
@@ -80,11 +81,12 @@ OPAE samples
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 %build
 mkdir -p _build
 cd _build
-%cmake ../usr -DBUILD_ASE=OFF -DOPAE_INSTALL_RPATH=OFF -DBUILD_LIBOPAE_PY=OFF -DBUILD_TOOLS_EXTRA=OFF
+%cmake ../usr -DBUILD_ASE=OFF -DOPAE_INSTALL_RPATH=OFF -DBUILD_LIBOPAE_PY=OFF
 make -j
 
 %install

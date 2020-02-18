@@ -1,0 +1,67 @@
+From e9a07045b5b51a1e4f36cdd06018c187f45a11a1 Mon Sep 17 00:00:00 2001
+From: Ananda Ravuri <33236856+anandaravuri@users.noreply.github.com>
+Date: Fri, 7 Feb 2020 10:43:13 -0800
+Subject: [PATCH] opae: fix python3 rpm create issues (#1436)
+
+* opae: fix python3 rpm create issues
+---
+ cmake/modules/packaging.cmake                 |  4 ++--
+ tools/extra/fpgadiag/common.py                |  2 +-
+ tools/extra/fpgadiag/fpgadiag                 |  2 +-
+ tools/extra/fpgadiag/fpgalpbk.py              |  2 +-
+ tools/extra/fpgadiag/fpgastats.py             | 16 ++++++-------
+ tools/extra/fpgadiag/mactest.py               |  2 +-
+ tools/extra/pac/fpgabist/bist_app.py          |  2 +-
+ tools/extra/pac/fpgabist/bist_common.py       |  2 +-
+ tools/extra/pac/fpgabist/bist_def.py          |  2 +-
+ tools/extra/pac/fpgabist/bist_dma.py          |  2 +-
+ tools/extra/pac/fpgabist/bist_nlb0.py         |  2 +-
+ tools/extra/pac/fpgabist/bist_nlb3.py         |  2 +-
+ .../extra/pac/fpgabist/dma_vc/fpga_dma_test.c | 23 ++++++++++++-------
+ tools/extra/pac/fpgabist/fpgabist             |  2 +-
+ 14 files changed, 36 insertions(+), 29 deletions(-)
+
+diff --git a/tools/extra/pac/fpgabist/dma_vc/fpga_dma_test.c b/tools/extra/pac/fpgabist/dma_vc/fpga_dma_test.c
+index 221f0fd5..63aa0a81 100644
+--- a/usr/tools/extra/pac/fpgabist/dma_vc/fpga_dma_test.c
++++ b/usr/tools/extra/pac/fpgabist/dma_vc/fpga_dma_test.c
+@@ -703,8 +703,13 @@ int main(int argc, char *argv[])
+ 		// Find the device from the topology
+ 		hwloc_topology_t topology;
+ 		hwloc_topology_init(&topology);
++#if HWLOC_API_VERSION >= 0x00020000
+ 		hwloc_topology_set_flags(topology,
+-					 HWLOC_TOPOLOGY_FLAG_IO_DEVICES);
++			HWLOC_TOPOLOGY_FLAG_IS_THISSYSTEM);
++#else
++		hwloc_topology_set_flags(topology,
++			HWLOC_TOPOLOGY_FLAG_IO_DEVICES);
++#endif
+ 		hwloc_topology_load(topology);
+ 		hwloc_obj_t obj = hwloc_get_pcidev_by_busid(topology, dom, bus,
+ 							    dev, func);
+@@ -720,15 +725,17 @@ int main(int argc, char *argv[])
+ 		printf("NODESET is %s\n", str);
+ #endif
+ 		if (memory_affinity) {
+-#if HWLOC_API_VERSION > 0x00020000
++
++#if HWLOC_API_VERSION >= 0x00020000
+ 			retval = hwloc_set_membind(
+-				topology, obj2->nodeset, HWLOC_MEMBIND_THREAD,
+-				HWLOC_MEMBIND_MIGRATE
+-					| HWLOC_MEMBIND_BYNODESET);
++				topology, obj2->nodeset,
++				HWLOC_MEMBIND_BIND,
++				HWLOC_MEMBIND_THREAD | HWLOC_MEMBIND_MIGRATE);
+ #else
+-			retval = hwloc_set_membind_nodeset(
+-				topology, obj2->nodeset, HWLOC_MEMBIND_THREAD,
+-				HWLOC_MEMBIND_MIGRATE);
++			retval = hwloc_set_membind_nodeset(
++				topology, obj2->nodeset,
++				HWLOC_MEMBIND_BIND,
++				HWLOC_MEMBIND_THREAD | HWLOC_MEMBIND_MIGRATE);
+ #endif
+ 			ON_ERR_GOTO(retval, out_close,
+ 				    "hwloc_set_membind");
