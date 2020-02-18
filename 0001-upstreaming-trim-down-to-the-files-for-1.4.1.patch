@@ -1,0 +1,137 @@
+From 99fc8be400a999588c3d6671f80d414b1fb428cb Mon Sep 17 00:00:00 2001
+From: Tim Whisonant <tim.whisonant@intel.com>
+Date: Fri, 17 Jan 2020 09:46:48 -0800
+Subject: [PATCH] upstreaming: trim down to the files for 1.4.1
+
+---
+ CMakeLists.txt                      |   2 +-
+ libopae/CMakeLists.txt              |  28 +++----
+ opae-sdk-rpm.spec                   | 111 +++++++++-------------------
+ scripts/create-rpms.sh              |  39 ++++++++--
+ tools/CMakeLists.txt                |  22 +++---
+ tools/extra/fpgadiag/CMakeLists.txt |   2 +
+ 6 files changed, 96 insertions(+), 108 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 07185c4f..9093032e 100644
+--- a/usr/CMakeLists.txt
++++ b/usr/CMakeLists.txt
+@@ -173,7 +173,7 @@ endif()
+ option(BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
+ mark_as_advanced(BUILD_PYTHON_DIST)
+ 
+-add_subdirectory(platforms)
++#add_subdirectory(platforms)
+ add_subdirectory(tools)
+ 
+ option(BUILD_ASE "Enable ASE compilation" ON)
+diff --git a/libopae/CMakeLists.txt b/libopae/CMakeLists.txt
+index f6cda990..70120f3b 100644
+--- a/usr/libopae/CMakeLists.txt
++++ b/usr/libopae/CMakeLists.txt
+@@ -48,13 +48,13 @@ set(SRC_ASE
+     init_ase.c
+     props.c
+     )
+-add_library(opae-c-ase SHARED ${SRC_ASE})
++#add_library(opae-c-ase SHARED ${SRC_ASE})
+ 
+-target_include_directories(opae-c-ase PUBLIC
+-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+-  PUBLIC ${libjson-c_INCLUDE_DIRS})
++#target_include_directories(opae-c-ase PUBLIC
++#  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
++#  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
++#  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
++#  PUBLIC ${libjson-c_INCLUDE_DIRS})
+ 
+ include_directories(${libjson-c_INCLUDE_DIRS})
+ 
+@@ -80,11 +80,11 @@ target_link_libraries(opae-c
+   safestr
+   ${libjson-c_LIBRARIES})
+ 
+-target_link_libraries(opae-c-ase
+-  dl
+-  ${CMAKE_THREAD_LIBS_INIT}
+-  safestr
+-  ${libjson-c_LIBRARIES})
++#target_link_libraries(opae-c-ase
++#  dl
++#  ${CMAKE_THREAD_LIBS_INIT}
++#  safestr
++#  ${libjson-c_LIBRARIES})
+ 
+ set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
+ 
+@@ -94,6 +94,6 @@ install(TARGETS opae-c
+   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+   COMPONENT opaeclib)
+   
+-install(TARGETS opae-c-ase
+-  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+-  COMPONENT opaeclib)
++#install(TARGETS opae-c-ase
++#  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
++#  COMPONENT opaeclib)
+diff --git a/tools/CMakeLists.txt b/tools/CMakeLists.txt
+index 001bf2e4..afbbfb26 100644
+--- a/usr/tools/CMakeLists.txt
++++ b/usr/tools/CMakeLists.txt
+@@ -34,17 +34,17 @@ add_subdirectory(base/fpgaconf)
+ add_subdirectory(base/fpgad)
+ add_subdirectory(base/argsfilter)
+ add_subdirectory(base/fpgainfo)
+-add_subdirectory(base/fpgaport)
++#add_subdirectory(base/fpgaport)
+ add_subdirectory(base/fpgametrics)
+ 
+ # extra
+ add_subdirectory(extra/coreidle)
+ add_subdirectory(extra/userclk)
+-add_subdirectory(extra/packager)
+-if (BUILD_PYTHON_DIST)
+-    add_subdirectory(extra/pypackager)
+-	add_subdirectory(extra/pyfpgadiag)
+-endif()
++#add_subdirectory(extra/packager)
++#if (BUILD_PYTHON_DIST)
++#    add_subdirectory(extra/pypackager)
++#	add_subdirectory(extra/pyfpgadiag)
++#endif()
+ add_subdirectory(extra/c++utils)
+ add_subdirectory(extra/fpgadiag)
+ add_subdirectory(extra/mmlink)
+@@ -54,9 +54,9 @@ add_subdirectory(extra/ras)
+ add_subdirectory(extra/integrated/hssi)
+ 
+ # pac
+-add_subdirectory(extra/pac/fpgaflash)
+-if (BUILD_PYTHON_DIST)
+-    add_subdirectory(extra/pac/pyfpgaflash)
+-endif()
+-add_subdirectory(extra/pac/pac_hssi_config)
++#add_subdirectory(extra/pac/fpgaflash)
++#if (BUILD_PYTHON_DIST)
++#    add_subdirectory(extra/pac/pyfpgaflash)
++#endif()
++#add_subdirectory(extra/pac/pac_hssi_config)
+ add_subdirectory(extra/pac/fpgabist)
+diff --git a/tools/extra/fpgadiag/CMakeLists.txt b/tools/extra/fpgadiag/CMakeLists.txt
+index 8e115a2a..b029c068 100644
+--- a/usr/tools/extra/fpgadiag/CMakeLists.txt
++++ b/usr/tools/extra/fpgadiag/CMakeLists.txt
+@@ -27,6 +27,8 @@ if(BUILD_ASE)
+   add_definitions(-DTARGET_ASE)
+ endif()
+ 
++include(packaging)
++
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_CONFIG_H -std=c++11")
+ include_directories(
+     ${OPAE_INCLUDE_DIR}
+-- 
+2.24.1
+

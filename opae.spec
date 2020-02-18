@@ -8,13 +8,15 @@ Vendor:         Intel Corporation
 Requires:       uuid, json-c, python
 URL:            https://github.com/OPAE/%{name}-sdk
 Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{release}/%{name}-%{version}-%{release}.tar.gz
-Patch0:         0001-upstreaming-fix-rpmlint-errors.patch
-Patch1:         0001-Trix-master-sa-1428.patch
-Patch2:         0001-Check-if-.git-directory-exists-before-finding-the-gi.patch
-Patch3:         0001-Add-cmake-option-BUILD_TOOLS_EXTRA.patch
-Patch4:         0001-Work-around-a-problem-with-python-3.7.patch
-Patch5:         0001-Change-to-explictly-to-python3.patch
-Patch6:         fix-hwloc-20.patch
+Patch0:         0001-upstreaming-trim-down-to-the-files-for-1.4.1.patch 
+Patch1:         0001-upstreaming-fix-rpmlint-errors.patch
+Patch2:         0001-Trix-master-sa-1428.patch
+Patch3:         0001-Check-if-.git-directory-exists-before-finding-the-gi.patch
+Patch4:         0001-Add-cmake-option-BUILD_TOOLS_EXTRA.patch
+Patch5:         0001-Work-around-a-problem-with-python-3.7.patch
+Patch6:         0001-Change-to-explictly-to-python3.patch
+Patch7:         fix-hwloc-20.patch
+
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
@@ -94,9 +96,10 @@ OPAE samples
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
+#%patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 
 %build
 mkdir -p _build
