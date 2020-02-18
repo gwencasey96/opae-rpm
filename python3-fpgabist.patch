@@ -1,0 +1,70 @@
+diff -ur opae-1.4.0-1.orig/usr/tools/extra/pac/fpgabist/bist_app.py opae-1.4.0-1/usr/tools/extra/pac/fpgabist/bist_app.py
+--- opae-1.4.0-1.orig/usr/tools/extra/pac/fpgabist/bist_app.py	2020-02-18 15:27:05.177617690 -0500
++++ opae-1.4.0-1/usr/tools/extra/pac/fpgabist/bist_app.py	2020-02-18 15:29:57.401910667 -0500
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python3
+ # Copyright(c) 2017, Intel Corporation
+ #
+ # Redistribution  and  use  in source  and  binary  forms,  with  or  without
+Only in opae-1.4.0-1/usr/tools/extra/pac/fpgabist: bist_app.py~
+diff -ur opae-1.4.0-1.orig/usr/tools/extra/pac/fpgabist/bist_common.py opae-1.4.0-1/usr/tools/extra/pac/fpgabist/bist_common.py
+--- opae-1.4.0-1.orig/usr/tools/extra/pac/fpgabist/bist_common.py	2020-02-18 15:27:05.177617690 -0500
++++ opae-1.4.0-1/usr/tools/extra/pac/fpgabist/bist_common.py	2020-02-18 15:28:11.865858898 -0500
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python3
+ # Copyright(c) 2017, Intel Corporation
+ #
+ # Redistribution  and  use  in source  and  binary  forms,  with  or  without
+Only in opae-1.4.0-1/usr/tools/extra/pac/fpgabist: bist_common.py~
+diff -ur opae-1.4.0-1.orig/usr/tools/extra/pac/fpgabist/bist_def.py opae-1.4.0-1/usr/tools/extra/pac/fpgabist/bist_def.py
+--- opae-1.4.0-1.orig/usr/tools/extra/pac/fpgabist/bist_def.py	2020-02-18 15:27:05.175617803 -0500
++++ opae-1.4.0-1/usr/tools/extra/pac/fpgabist/bist_def.py	2020-02-18 15:29:01.186079102 -0500
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python3
+ # Copyright(c) 2017, Intel Corporation
+ #
+ # Redistribution  and  use  in source  and  binary  forms,  with  or  without
+Only in opae-1.4.0-1/usr/tools/extra/pac/fpgabist: bist_def.py~
+diff -ur opae-1.4.0-1.orig/usr/tools/extra/pac/fpgabist/bist_dma.py opae-1.4.0-1/usr/tools/extra/pac/fpgabist/bist_dma.py
+--- opae-1.4.0-1.orig/usr/tools/extra/pac/fpgabist/bist_dma.py	2020-02-18 15:27:05.177617690 -0500
++++ opae-1.4.0-1/usr/tools/extra/pac/fpgabist/bist_dma.py	2020-02-18 15:28:28.657912460 -0500
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python3
+ # Copyright(c) 2017, Intel Corporation
+ #
+ # Redistribution  and  use  in source  and  binary  forms,  with  or  without
+Only in opae-1.4.0-1/usr/tools/extra/pac/fpgabist: bist_dma.py~
+diff -ur opae-1.4.0-1.orig/usr/tools/extra/pac/fpgabist/bist_nlb0.py opae-1.4.0-1/usr/tools/extra/pac/fpgabist/bist_nlb0.py
+--- opae-1.4.0-1.orig/usr/tools/extra/pac/fpgabist/bist_nlb0.py	2020-02-18 15:27:05.177617690 -0500
++++ opae-1.4.0-1/usr/tools/extra/pac/fpgabist/bist_nlb0.py	2020-02-18 15:28:45.033989471 -0500
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python3
+ # Copyright(c) 2018, Intel Corporation
+ #
+ # Redistribution  and  use  in source  and  binary  forms,  with  or  without
+Only in opae-1.4.0-1/usr/tools/extra/pac/fpgabist: bist_nlb0.py~
+diff -ur opae-1.4.0-1.orig/usr/tools/extra/pac/fpgabist/bist_nlb3.py opae-1.4.0-1/usr/tools/extra/pac/fpgabist/bist_nlb3.py
+--- opae-1.4.0-1.orig/usr/tools/extra/pac/fpgabist/bist_nlb3.py	2020-02-18 15:27:05.177617690 -0500
++++ opae-1.4.0-1/usr/tools/extra/pac/fpgabist/bist_nlb3.py	2020-02-18 15:29:30.248441088 -0500
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python3
+ # Copyright(c) 2017, Intel Corporation
+ #
+ # Redistribution  and  use  in source  and  binary  forms,  with  or  without
+Only in opae-1.4.0-1/usr/tools/extra/pac/fpgabist: bist_nlb3.py~
+diff -ur opae-1.4.0-1.orig/usr/tools/extra/pac/fpgabist/fpgabist opae-1.4.0-1/usr/tools/extra/pac/fpgabist/fpgabist
+--- opae-1.4.0-1.orig/usr/tools/extra/pac/fpgabist/fpgabist	2020-02-18 15:27:05.177617690 -0500
++++ opae-1.4.0-1/usr/tools/extra/pac/fpgabist/fpgabist	2020-02-18 15:27:54.936813060 -0500
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python3
+ # Copyright(c) 2017, Intel Corporation
+ #
+ # Redistribution  and  use  in source  and  binary  forms,  with  or  without
+Only in opae-1.4.0-1/usr/tools/extra/pac/fpgabist: fpgabist~
