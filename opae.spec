@@ -8,11 +8,12 @@ Vendor:         Intel Corporation
 Requires:       uuid, json-c, python
 URL:            https://github.com/OPAE/%{name}-sdk
 Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{release}/%{name}-%{version}-%{release}.tar.gz
-Patch0:         0001-Trix-master-sa-1428.patch
-Patch1:         0001-Check-if-.git-directory-exists-before-finding-the-gi.patch
-Patch2:         0001-Add-cmake-option-BUILD_TOOLS_EXTRA.patch
-Patch3:         0001-Work-around-a-problem-with-python-3.7.patch
-Patch4:         0001-Change-to-explictly-to-python3.patch
+Patch0:         0001-upstreaming-fix-rpmlint-errors.patch
+Patch1:         0001-Trix-master-sa-1428.patch
+Patch2:         0001-Check-if-.git-directory-exists-before-finding-the-gi.patch
+Patch3:         0001-Add-cmake-option-BUILD_TOOLS_EXTRA.patch
+Patch4:         0001-Work-around-a-problem-with-python-3.7.patch
+Patch5:         0001-Change-to-explictly-to-python3.patch
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
@@ -78,6 +79,7 @@ OPAE samples
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 %build
 mkdir -p _build
@@ -138,9 +140,9 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_libdir}/libopae-c.so*
 %{_libdir}/libopae-c-ase.so*
 %{_libdir}/libopae-cxx-core.so*
-%{_libdir}/libxfpga.so*
+%{_libdir}/opae/libxfpga.so*
 %{_libdir}/libbmc.so*
-%{_libdir}/libmodbmc.so*
+%{_libdir}/opae/libmodbmc.so*
 %{_libdir}/libbitstream.so*
 %{_libdir}/libboard_rc.so*
 %{_libdir}/libboard_vc.so*
@@ -178,8 +180,8 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
 %config(noreplace) %{_sysconfdir}/systemd/system/fpgad.service
 %{_libdir}/libfpgad-api.so*
-%{_libdir}/libfpgad-xfpga.so*
-%{_libdir}/libfpgad-vc.so*
+%{_libdir}/opae/libfpgad-xfpga.so*
+%{_libdir}/opae/libfpgad-vc.so*
 
 %files samples
 %defattr(-,root,root,-)

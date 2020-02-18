@@ -1,0 +1,900 @@
+From 7ca5914c4b0ab477a90bd1e42d292ea71259dae3 Mon Sep 17 00:00:00 2001
+From: Tim Whisonant <tim.whisonant@intel.com>
+Date: Thu, 23 Jan 2020 10:01:24 -0800
+Subject: [PATCH] upstreaming: fix rpmlint errors.
+
+---
+ CMakeLists.txt                                |  15 +-
+ cmake/modules/FindDBus.cmake                  |   3 +-
+ cmake/modules/FindGLIB.cmake                  |   3 +-
+ cmake/modules/FindOPAE.cmake                  |  27 +++
+ cmake/modules/FindQuartus.cmake               |   3 +-
+ cmake/modules/FindQuesta.cmake                |   3 +-
+ cmake/modules/FindRT.cmake                    |  27 +++
+ cmake/modules/FindUUID.cmake                  |   3 +-
+ cmake/modules/FindVerilator.cmake             |   3 +-
+ cmake/modules/Findjson-c.cmake                |  27 +++
+ cmake/modules/cmake_useful.cmake              |   3 +-
+ cmake/modules/compiler_config.cmake           |   3 +-
+ cmake/modules/fpga_functions.cmake            | 184 +++++++++---------
+ cmake/modules/libraries_config.cmake          |   3 +-
+ libopae/pluginmgr.c                           |  30 ++-
+ libopae/plugins/xfpga/CMakeLists.txt          |   6 +-
+ .../plugins/xfpga/metrics/bmc/CMakeLists.txt  |   6 +-
+ libopae/plugins/xfpga/metrics/metrics_int.h   |   3 +-
+ libopae/plugins/xfpga/metrics/metrics_utils.c |  30 ++-
+ libopae/plugins/xfpga/metrics/threshold.c     |   4 +-
+ libopaecxx/CMakeLists.txt                     |   4 +
+ opae-sdk-rpm.spec => opae.spec                | 130 ++++++++-----
+ scripts/create-rpms.sh                        |  15 +-
+ testing/xfpga/test_metrics_utils_c.cpp        |  23 +--
+ testing/xfpga/test_thresold_c.cpp             |   6 +-
+ tools/base/fpgad/monitored_device.c           |  31 ++-
+ .../fpgad/plugins/fpgad-vc/CMakeLists.txt     |   4 +-
+ .../fpgad/plugins/fpgad-xfpga/CMakeLists.txt  |   4 +-
+ tools/base/fpgainfo/board.c                   |  26 ++-
+ tools/extra/pac/fpgabist/CMakeLists.txt       |  10 +-
+ tools/extra/pac/fpgabist/bist_common.py       |   1 +
+ 31 files changed, 435 insertions(+), 205 deletions(-)
+ rename opae-sdk-rpm.spec => opae.spec (55%)
+ mode change 100644 => 100755 tools/extra/pac/fpgabist/bist_common.py
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9093032e..46f408d0 100644
+--- a/usr/CMakeLists.txt
++++ b/usr/CMakeLists.txt
+@@ -87,6 +87,9 @@ find_package(PythonLibs ${OPAE_PYTHON_VERSION})
+ ############################################################################
+ ## Other setup and dependencies ############################################
+ ############################################################################
++option(OPAE_INSTALL_RPATH "Enable to create RPATH during install" OFF)
++mark_as_advanced(OPAE_INSTALL_RPATH)
++
+ include(compiler_config)
+ include(libraries_config)
+ include(fpga_functions)
+@@ -214,10 +217,12 @@ endif()
+ ############################################################################
+ 
+ set(CMAKE_SKIP_BUILD_RPATH FALSE)
+-set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OPAE_LIB_INSTALL_DIR}")
+-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+ 
++if(OPAE_INSTALL_RPATH)
++  set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
++  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OPAE_LIB_INSTALL_DIR}")
++  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
++endif()
+ ############################################################################
+ ## Packaging ###############################################################
+ ############################################################################
+diff --git a/cmake/modules/FindDBus.cmake b/cmake/modules/FindDBus.cmake
+index 7d52496b..abbc54f8 100644
+--- a/usr/cmake/modules/FindDBus.cmake
++++ b/usr/cmake/modules/FindDBus.cmake
+@@ -1,4 +1,5 @@
+-## Copyright(c) 2014-2018, Intel Corporation
++#!/usr/bin/cmake -P
++## Copyright(c) 2014-2020, Intel Corporation
+ ##
+ ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ ## modification, are permitted provided that the following conditions are met:
+diff --git a/cmake/modules/FindGLIB.cmake b/cmake/modules/FindGLIB.cmake
+index def15d5c..d040821f 100644
+--- a/usr/cmake/modules/FindGLIB.cmake
++++ b/usr/cmake/modules/FindGLIB.cmake
+@@ -1,4 +1,5 @@
+-## Copyright(c) 2014-2018, Intel Corporation
++#!/usr/bin/cmake -P
++## Copyright(c) 2014-2020, Intel Corporation
+ ##
+ ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ ## modification, are permitted provided that the following conditions are met:
+diff --git a/cmake/modules/FindOPAE.cmake b/cmake/modules/FindOPAE.cmake
+index 1ad09b8a..458d6068 100644
+--- a/usr/cmake/modules/FindOPAE.cmake
++++ b/usr/cmake/modules/FindOPAE.cmake
+@@ -1,3 +1,30 @@
++#!/usr/bin/cmake -P
++## Copyright(c) 2014-2020, Intel Corporation
++##
++## Redistribution  and  use  in source  and  binary  forms,  with  or  without
++## modification, are permitted provided that the following conditions are met:
++##
++## * Redistributions of  source code  must retain the  above copyright notice,
++##   this list of conditions and the following disclaimer.
++## * Redistributions in binary form must reproduce the above copyright notice,
++##   this list of conditions and the following disclaimer in the documentation
++##   and/or other materials provided with the distribution.
++## * Neither the name  of Intel Corporation  nor the names of its contributors
++##   may be used to  endorse or promote  products derived  from this  software
++##   without specific prior written permission.
++##
++## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++## AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
++## IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++## ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
++## LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
++## CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
++## SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
++## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
++## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
++## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
++## POSSIBILITY OF SUCH DAMAGE
++
+ # - Try to find libopae-c
+ # Once done, this will define
+ #
+diff --git a/cmake/modules/FindQuartus.cmake b/cmake/modules/FindQuartus.cmake
+index 0ef07e14..cfce99dd 100644
+--- a/usr/cmake/modules/FindQuartus.cmake
++++ b/usr/cmake/modules/FindQuartus.cmake
+@@ -1,4 +1,5 @@
+-## Copyright(c) 2017, Intel Corporation
++#!/usr/bin/cmake -P
++## Copyright(c) 2017-2020, Intel Corporation
+ ##
+ ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ ## modification, are permitted provided that the following conditions are met:
+diff --git a/cmake/modules/FindQuesta.cmake b/cmake/modules/FindQuesta.cmake
+index cb38abd0..b2234a9a 100644
+--- a/usr/cmake/modules/FindQuesta.cmake
++++ b/usr/cmake/modules/FindQuesta.cmake
+@@ -1,4 +1,5 @@
+-## Copyright(c) 2017, 2018, Intel Corporation
++#!/usr/bin/cmake -P
++## Copyright(c) 2017-2020, Intel Corporation
+ ##
+ ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ ## modification, are permitted provided that the following conditions are met:
+diff --git a/cmake/modules/FindRT.cmake b/cmake/modules/FindRT.cmake
+index a5c6fd01..3f35fe19 100644
+--- a/usr/cmake/modules/FindRT.cmake
++++ b/usr/cmake/modules/FindRT.cmake
+@@ -1,3 +1,30 @@
++#!/usr/bin/cmake -P
++## Copyright(c) 2014-2020, Intel Corporation
++##
++## Redistribution  and  use  in source  and  binary  forms,  with  or  without
++## modification, are permitted provided that the following conditions are met:
++##
++## * Redistributions of  source code  must retain the  above copyright notice,
++##   this list of conditions and the following disclaimer.
++## * Redistributions in binary form must reproduce the above copyright notice,
++##   this list of conditions and the following disclaimer in the documentation
++##   and/or other materials provided with the distribution.
++## * Neither the name  of Intel Corporation  nor the names of its contributors
++##   may be used to  endorse or promote  products derived  from this  software
++##   without specific prior written permission.
++##
++## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++## AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
++## IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++## ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
++## LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
++## CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
++## SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
++## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
++## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
++## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
++## POSSIBILITY OF SUCH DAMAGE
++
+ # - Try to find librt
+ # Once done, this will define
+ #
+diff --git a/cmake/modules/FindUUID.cmake b/cmake/modules/FindUUID.cmake
+index 58aee6e8..22449869 100644
+--- a/usr/cmake/modules/FindUUID.cmake
++++ b/usr/cmake/modules/FindUUID.cmake
+@@ -1,4 +1,5 @@
+-## Copyright(c) 2014-2018, Intel Corporation
++#!/usr/bin/cmake -P
++## Copyright(c) 2014-2020, Intel Corporation
+ ##
+ ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ ## modification, are permitted provided that the following conditions are met:
+diff --git a/cmake/modules/FindVerilator.cmake b/cmake/modules/FindVerilator.cmake
+index 17c901cc..a009337e 100644
+--- a/usr/cmake/modules/FindVerilator.cmake
++++ b/usr/cmake/modules/FindVerilator.cmake
+@@ -1,4 +1,5 @@
+-## Copyright(c) 2017, Intel Corporation
++#!/usr/bin/cmake -P
++## Copyright(c) 2017-2020, Intel Corporation
+ ##
+ ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ ## modification, are permitted provided that the following conditions are met:
+diff --git a/cmake/modules/Findjson-c.cmake b/cmake/modules/Findjson-c.cmake
+index 51991b6b..2ddcd722 100644
+--- a/usr/cmake/modules/Findjson-c.cmake
++++ b/usr/cmake/modules/Findjson-c.cmake
+@@ -1,3 +1,30 @@
++#!/usr/bin/cmake -P
++## Copyright(c) 2017-2020, Intel Corporation
++##
++## Redistribution  and  use  in source  and  binary  forms,  with  or  without
++## modification, are permitted provided that the following conditions are met:
++##
++## * Redistributions of  source code  must retain the  above copyright notice,
++##   this list of conditions and the following disclaimer.
++## * Redistributions in binary form must reproduce the above copyright notice,
++##   this list of conditions and the following disclaimer in the documentation
++##   and/or other materials provided with the distribution.
++## * Neither the name  of Intel Corporation  nor the names of its contributors
++##   may be used to  endorse or promote  products derived  from this  software
++##   without specific prior written permission.
++##
++## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++## AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
++## IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++## ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
++## LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
++## CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
++## SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
++## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
++## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
++## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
++## POSSIBILITY OF SUCH DAMAGE
++
+ # - Try to find libjson-c
+ # Once done, this will define
+ #
+diff --git a/cmake/modules/cmake_useful.cmake b/cmake/modules/cmake_useful.cmake
+index e9318e3d..42fde994 100644
+--- a/usr/cmake/modules/cmake_useful.cmake
++++ b/usr/cmake/modules/cmake_useful.cmake
+@@ -1,4 +1,5 @@
+-## Copyright(c) 2017, 2018, Intel Corporation
++#!/usr/bin/cmake -P
++## Copyright(c) 2017-2020, Intel Corporation
+ ##
+ ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ ## modification, are permitted provided that the following conditions are met:
+diff --git a/cmake/modules/compiler_config.cmake b/cmake/modules/compiler_config.cmake
+index 7ff35d58..596c71bc 100644
+--- a/usr/cmake/modules/compiler_config.cmake
++++ b/usr/cmake/modules/compiler_config.cmake
+@@ -1,4 +1,5 @@
+-## Copyright(c) 2017, Intel Corporation
++#!/usr/bin/cmake -P
++## Copyright(c) 2017-2020, Intel Corporation
+ ##
+ ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ ## modification, are permitted provided that the following conditions are met:
+diff --git a/cmake/modules/fpga_functions.cmake b/cmake/modules/fpga_functions.cmake
+index f8e68b2a..2e23325b 100644
+--- a/usr/cmake/modules/fpga_functions.cmake
++++ b/usr/cmake/modules/fpga_functions.cmake
+@@ -1,91 +1,93 @@
+-## Copyright(c) 2017, Intel Corporation
+-##
+-## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+-## modification, are permitted provided that the following conditions are met:
+-##
+-## * Redistributions of  source code  must retain the  above copyright notice,
+-##   this list of conditions and the following disclaimer.
+-## * Redistributions in binary form must reproduce the above copyright notice,
+-##   this list of conditions and the following disclaimer in the documentation
+-##   and/or other materials provided with the distribution.
+-## * Neither the name  of Intel Corporation  nor the names of its contributors
+-##   may be used to  endorse or promote  products derived  from this  software
+-##   without specific prior written permission.
+-##
+-## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+-## AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+-## IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-## ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+-## LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+-## CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+-## SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+-## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+-## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+-## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+-## POSSIBILITY OF SUCH DAMAGE.
+-
+-set(ASE_LIBRARIES "" CACHE INTERNAL "ase libraries")
+-
+-function(add_fpga_executable)
+-    list(GET ARGV 0 target_name)
+-    if (BUILD_LIBFPGA)
+-        add_executable(${ARGV})
+-        target_link_libraries(${target_name} fpga)
+-    endif(BUILD_LIBFPGA)
+-    if (BUILD_ASE)
+-        list(REMOVE_AT ARGV 0)
+-        add_executable(${target_name}-ASE ${ARGV})
+-    endif(BUILD_ASE)
+-endfunction(add_fpga_executable)
+-
+-function(add_fpga_library)
+-    list(GET ARGV 0 target_name)
+-    if (BUILD_LIBFPGA)
+-        add_library(${ARGV})
+-        target_link_libraries(${target_name} fpga)
+-    endif(BUILD_LIBFPGA)
+-    if (BUILD_ASE)
+-        list(REMOVE_AT ARGV 0)
+-        add_library(${target_name}-ASE ${ARGV})
+-    endif(BUILD_ASE)
+-endfunction(add_fpga_library)
+-
+-function(fpga_target_link_libraries)
+-    list(GET ARGV 0 target_name)
+-    list(REMOVE_AT ARGV 0)
+-    list(LENGTH ARGV length)
+-    list(FIND ARGV "FPGA_LIBS" fpga_libs_index)
+-    set(fpga_libs "")
+-    set(ase_libs "")
+-    if (fpga_libs_index GREATER -1)
+-        math(EXPR start "${fpga_libs_index}+1")
+-        math(EXPR end   "${length}-1")
+-        foreach(idx RANGE ${start} ${end})
+-            list(GET ARGV ${idx} item)
+-            list(APPEND fpga_libs ${item})
+-            list(APPEND ase_libs ${item}-ASE)
+-        endforeach()
+-        list(REMOVE_ITEM ARGV FPGA_LIBS ${fpga_libs})
+-    endif()
+-    if (BUILD_LIBFPGA)
+-        target_link_libraries(${target_name} ${ARGV} ${fpga_libs})
+-    endif(BUILD_LIBFPGA)
+-    if (BUILD_ASE)
+-        target_link_libraries(${target_name}-ASE ${ARGV} ${ase_libs})
+-    endif(BUILD_ASE)
+-endfunction(fpga_target_link_libraries)
+-
+-
+-get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
+-if ("${LIB64}" STREQUAL "TRUE")
+-    set(FPGA_FUNCTIONS_LIB_DIR "lib64")
+-else()
+-    set(FPGA_FUNCTIONS_LIB_DIR "lib")
+-endif() 
+-
+-macro(set_install_rpath target_name)
+-    set_target_properties(${target_name} PROPERTIES INSTALL_RPATH "\$ORIGIN/../${FPGA_FUNCTIONS_LIB_DIR}"
+-                                                    INSTALL_RPATH_USE_LINK_PATH TRUE
+-                                                    SKIP_BUILD_RPATH FALSE
+-                                                    BUILD_WITH_INSTALL_RPATH FALSE)
+-endmacro(set_install_rpath target_name)
++## Copyright(c) 2017, Intel Corporation
++##
++## Redistribution  and  use  in source  and  binary  forms,  with  or  without
++## modification, are permitted provided that the following conditions are met:
++##
++## * Redistributions of  source code  must retain the  above copyright notice,
++##   this list of conditions and the following disclaimer.
++## * Redistributions in binary form must reproduce the above copyright notice,
++##   this list of conditions and the following disclaimer in the documentation
++##   and/or other materials provided with the distribution.
++## * Neither the name  of Intel Corporation  nor the names of its contributors
++##   may be used to  endorse or promote  products derived  from this  software
++##   without specific prior written permission.
++##
++## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++## AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
++## IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++## ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
++## LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
++## CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
++## SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
++## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
++## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
++## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
++## POSSIBILITY OF SUCH DAMAGE.
++
++set(ASE_LIBRARIES "" CACHE INTERNAL "ase libraries")
++
++function(add_fpga_executable)
++    list(GET ARGV 0 target_name)
++    if (BUILD_LIBFPGA)
++        add_executable(${ARGV})
++        target_link_libraries(${target_name} fpga)
++    endif(BUILD_LIBFPGA)
++    if (BUILD_ASE)
++        list(REMOVE_AT ARGV 0)
++        add_executable(${target_name}-ASE ${ARGV})
++    endif(BUILD_ASE)
++endfunction(add_fpga_executable)
++
++function(add_fpga_library)
++    list(GET ARGV 0 target_name)
++    if (BUILD_LIBFPGA)
++        add_library(${ARGV})
++        target_link_libraries(${target_name} fpga)
++    endif(BUILD_LIBFPGA)
++    if (BUILD_ASE)
++        list(REMOVE_AT ARGV 0)
++        add_library(${target_name}-ASE ${ARGV})
++    endif(BUILD_ASE)
++endfunction(add_fpga_library)
++
++function(fpga_target_link_libraries)
++    list(GET ARGV 0 target_name)
++    list(REMOVE_AT ARGV 0)
++    list(LENGTH ARGV length)
++    list(FIND ARGV "FPGA_LIBS" fpga_libs_index)
++    set(fpga_libs "")
++    set(ase_libs "")
++    if (fpga_libs_index GREATER -1)
++        math(EXPR start "${fpga_libs_index}+1")
++        math(EXPR end   "${length}-1")
++        foreach(idx RANGE ${start} ${end})
++            list(GET ARGV ${idx} item)
++            list(APPEND fpga_libs ${item})
++            list(APPEND ase_libs ${item}-ASE)
++        endforeach()
++        list(REMOVE_ITEM ARGV FPGA_LIBS ${fpga_libs})
++    endif()
++    if (BUILD_LIBFPGA)
++        target_link_libraries(${target_name} ${ARGV} ${fpga_libs})
++    endif(BUILD_LIBFPGA)
++    if (BUILD_ASE)
++        target_link_libraries(${target_name}-ASE ${ARGV} ${ase_libs})
++    endif(BUILD_ASE)
++endfunction(fpga_target_link_libraries)
++
++
++get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
++if ("${LIB64}" STREQUAL "TRUE")
++    set(FPGA_FUNCTIONS_LIB_DIR "lib64")
++else()
++    set(FPGA_FUNCTIONS_LIB_DIR "lib")
++endif()
++
++macro(set_install_rpath target_name)
++  if(OPAE_INSTALL_RPATH)
++    set_target_properties(${target_name} PROPERTIES INSTALL_RPATH "\$ORIGIN/../${FPGA_FUNCTIONS_LIB_DIR}"
++                                                    INSTALL_RPATH_USE_LINK_PATH TRUE
++                                                    SKIP_BUILD_RPATH FALSE
++                                                    BUILD_WITH_INSTALL_RPATH FALSE)
++  endif()
++endmacro(set_install_rpath target_name)
+diff --git a/cmake/modules/libraries_config.cmake b/cmake/modules/libraries_config.cmake
+index 3ca64397..4f0ace6e 100644
+--- a/usr/cmake/modules/libraries_config.cmake
++++ b/usr/cmake/modules/libraries_config.cmake
+@@ -1,4 +1,5 @@
+-## Copyright(c) 2017, Intel Corporation
++#!/usr/bin/cmake -P
++## Copyright(c) 2017-2020, Intel Corporation
+ ##
+ ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ ## modification, are permitted provided that the following conditions are met:
+diff --git a/libopae/pluginmgr.c b/libopae/pluginmgr.c
+index f333e601..6fdef6a6 100644
+--- a/usr/libopae/pluginmgr.c
++++ b/usr/libopae/pluginmgr.c
+@@ -1,4 +1,4 @@
+-// Copyright(c) 2018, Intel Corporation
++// Copyright(c) 2018-2020, Intel Corporation
+ //
+ // Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ // modification, are permitted provided that the following conditions are met:
+@@ -135,12 +135,38 @@ STATIC char *find_cfg()
+ 	return NULL;
+ }
+ 
++STATIC void *opae_plugin_mgr_find_plugin(const char *lib_path)
++{
++	char plugin_path[PATH_MAX];
++	const char *search_paths[] = {
++		"/usr/lib64/opae/",
++		"/usr/lib/opae/",
++		""
++	};
++	unsigned i;
++	void *dl_handle;
++
++	for (i = 0 ;
++		i < sizeof(search_paths) / sizeof(search_paths[0]) ; ++i) {
++
++		snprintf_s_ss(plugin_path, sizeof(plugin_path),
++				"%s%s", search_paths[i], lib_path);
++
++		dl_handle = dlopen(plugin_path, RTLD_LAZY | RTLD_LOCAL);
++
++		if (dl_handle)
++			return dl_handle;
++	}
++
++	return NULL;
++}
++
+ STATIC opae_api_adapter_table *opae_plugin_mgr_alloc_adapter(const char *lib_path)
+ {
+ 	void *dl_handle;
+ 	opae_api_adapter_table *adapter;
+ 
+-	dl_handle = dlopen(lib_path, RTLD_LAZY | RTLD_LOCAL);
++	dl_handle = opae_plugin_mgr_find_plugin(lib_path);
+ 
+ 	if (!dl_handle) {
+ 		char *err = dlerror();
+diff --git a/libopae/plugins/xfpga/CMakeLists.txt b/libopae/plugins/xfpga/CMakeLists.txt
+index 3af0761c..da9ea8e9 100644
+--- a/usr/libopae/plugins/xfpga/CMakeLists.txt
++++ b/usr/libopae/plugins/xfpga/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-## Copyright(c) 2017, Intel Corporation
++## Copyright(c) 2017-2020, Intel Corporation
+ ##
+ ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ ## modification, are permitted provided that the following conditions are met:
+@@ -120,8 +120,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
+ endif(CMAKE_BUILD_TYPE STREQUAL "Release")
+ 
+ install(TARGETS xfpga
+-  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+-  COMPONENT opaeclib)
++  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}/opae
++  COMPONENT opaeclib_xfpga)
+ 
+ #get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
+ #if ("${LIB64}" STREQUAL "TRUE")
+diff --git a/libopae/plugins/xfpga/metrics/bmc/CMakeLists.txt b/libopae/plugins/xfpga/metrics/bmc/CMakeLists.txt
+index 960b18f3..ec55fad1 100644
+--- a/usr/libopae/plugins/xfpga/metrics/bmc/CMakeLists.txt
++++ b/usr/libopae/plugins/xfpga/metrics/bmc/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-## Copyright(c) 2018-2019, Intel Corporation
++## Copyright(c) 2018-2020, Intel Corporation
+ ##
+ ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ ## modification, are permitted provided that the following conditions are met:
+@@ -63,5 +63,5 @@ install(TARGETS bmc
+     COMPONENT opaetoolslibs)
+ 
+ install(TARGETS modbmc
+-    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+-    COMPONENT opaetoolslibs)
++    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}/opae
++    COMPONENT metricsmodbmc)
+diff --git a/libopae/plugins/xfpga/metrics/metrics_int.h b/libopae/plugins/xfpga/metrics/metrics_int.h
+index 8928a93b..047518ee 100644
+--- a/usr/libopae/plugins/xfpga/metrics/metrics_int.h
++++ b/usr/libopae/plugins/xfpga/metrics/metrics_int.h
+@@ -1,4 +1,4 @@
+-// Copyright(c) 2018-2019, Intel Corporation
++// Copyright(c) 2018-2020, Intel Corporation
+ //
+ // Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ // modification, are permitted provided that the following conditions are met:
+@@ -273,5 +273,6 @@ fpga_result xfpga_bmcGetSDRDetails(struct _fpga_handle *_handle,
+ 	uint32_t sensor_number,
+ 	sdr_details *details);
+ 
++void *metrics_load_bmc_lib(void);
+ 
+ #endif // __FPGA_METRICS_INT_H__
+diff --git a/libopae/plugins/xfpga/metrics/metrics_utils.c b/libopae/plugins/xfpga/metrics/metrics_utils.c
+index a5d70102..d8805426 100644
+--- a/usr/libopae/plugins/xfpga/metrics/metrics_utils.c
++++ b/usr/libopae/plugins/xfpga/metrics/metrics_utils.c
+@@ -1,4 +1,4 @@
+-// Copyright(c) 2018-2019, Intel Corporation
++// Copyright(c) 2018-2020, Intel Corporation
+ //
+ // Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ // modification, are permitted provided that the following conditions are met:
+@@ -795,6 +795,32 @@ fpga_result get_fpga_object_type(fpga_handle handle,
+ 	return resval;
+ }
+ 
++void *metrics_load_bmc_lib(void)
++{
++	char plugin_path[PATH_MAX];
++	const char *search_paths[] = {
++		"/usr/lib64/opae/",
++		"/usr/lib/opae/",
++		""
++	};
++	unsigned i;
++	void *dl_handle;
++
++	for (i = 0 ;
++		i < sizeof(search_paths) / sizeof(search_paths[0]) ;
++		++i) {
++
++		snprintf_s_ss(plugin_path, sizeof(plugin_path),
++			      "%s%s", search_paths[i], BMC_LIB);
++
++		dl_handle = dlopen(plugin_path, RTLD_LAZY | RTLD_LOCAL);
++		if (dl_handle)
++			return dl_handle;
++	}
++
++	return NULL;
++}
++
+ // enumerates FME & AFU metrics info
+ fpga_result enum_fpga_metrics(fpga_handle handle)
+ {
+@@ -914,7 +940,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
+ 			if (sysfs_get_bmc_path(_token, metrics_path) == FPGA_OK) {
+ 
+ 				if (_handle->bmc_handle == NULL)
+-					_handle->bmc_handle = dlopen(BMC_LIB, RTLD_LAZY | RTLD_LOCAL);
++					_handle->bmc_handle = metrics_load_bmc_lib();
+ 
+ 				if (_handle->bmc_handle) {
+ 					result = enum_bmc_metrics_info(_handle, &(_handle->fpga_enum_metric_vector), &metric_num, FPGA_HW_DCP_RC);
+diff --git a/libopae/plugins/xfpga/metrics/threshold.c b/libopae/plugins/xfpga/metrics/threshold.c
+index 251fe16b..d2b1bb5b 100644
+--- a/usr/libopae/plugins/xfpga/metrics/threshold.c
++++ b/usr/libopae/plugins/xfpga/metrics/threshold.c
+@@ -1,4 +1,4 @@
+-// Copyright(c) 2018-2019, Intel Corporation
++// Copyright(c) 2018-2020, Intel Corporation
+ //
+ // Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ // modification, are permitted provided that the following conditions are met:
+@@ -163,7 +163,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
+ 
+ 	pthread_mutex_lock(&_handle->lock);
+ 	if (_handle->bmc_handle == NULL)
+-		_handle->bmc_handle = dlopen(BMC_LIB, RTLD_LAZY | RTLD_LOCAL);
++		_handle->bmc_handle = metrics_load_bmc_lib();
+ 	if (!_handle->bmc_handle) {
+ 		FPGA_ERR("Failed to load BMC module %s", dlerror());
+ 		pthread_mutex_unlock(&_handle->lock);
+diff --git a/libopaecxx/CMakeLists.txt b/libopaecxx/CMakeLists.txt
+index dc0cb429..871048c7 100644
+--- a/usr/libopaecxx/CMakeLists.txt
++++ b/usr/libopaecxx/CMakeLists.txt
+@@ -60,6 +60,10 @@ set(OPAECXXCORE_SRC src/properties.cpp
+ add_library(opae-cxx-core SHARED ${OPAECXXCORE_SRC})
+ target_link_libraries(opae-cxx-core uuid)
+ 
++set_target_properties(opae-cxx-core PROPERTIES
++  VERSION ${INTEL_FPGA_API_VERSION}
++  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
++
+ add_executable(hello_cxxcore samples/hello_fpga-1.cpp)
+ target_link_libraries(hello_cxxcore opae-c ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core )
+ 
+diff --git a/testing/xfpga/test_metrics_utils_c.cpp b/testing/xfpga/test_metrics_utils_c.cpp
+index dceeb9bb..51b96c4f 100644
+--- a/usr/testing/xfpga/test_metrics_utils_c.cpp
++++ b/usr/testing/xfpga/test_metrics_utils_c.cpp
+@@ -1,4 +1,4 @@
+-// Copyright(c) 2018, Intel Corporation
++// Copyright(c) 2018-2020, Intel Corporation
+ //
+ // Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ // modification, are permitted provided that the following conditions are met:
+@@ -706,11 +706,8 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_12) {
+   struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
+   fpga_metric_vector vector;
+ 
+-  _handle->bmc_handle = dlopen("libmodbmc.so", RTLD_LAZY | RTLD_LOCAL);
+-
+-  if (!_handle->bmc_handle) {
+-    OPAE_ERR("--------------------------failed to load ");
+-  }
++  _handle->bmc_handle = metrics_load_bmc_lib();
++  ASSERT_NE(_handle->bmc_handle, (void *)nullptr);    
+ 
+   EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
+ 
+@@ -723,11 +720,8 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_12) {
+ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_13) {
+   struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
+ 
+-  _handle->bmc_handle = dlopen("libmodbmc.so", RTLD_LAZY | RTLD_LOCAL);
+-
+-  if (!_handle->bmc_handle) {
+-    OPAE_ERR("--------------------------failed to load ");
+-  }
++  _handle->bmc_handle = metrics_load_bmc_lib();
++  ASSERT_NE(_handle->bmc_handle, (void *)nullptr);    
+ 
+   EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
+ }
+@@ -735,11 +729,8 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_13) {
+ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_14) {
+   struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
+ 
+-  _handle->bmc_handle = dlopen("libmodbmc.so", RTLD_LAZY | RTLD_LOCAL);
+-
+-  if (!_handle->bmc_handle) {
+-    OPAE_ERR("--------------------------failed to load ");
+-  }
++  _handle->bmc_handle = metrics_load_bmc_lib();
++  ASSERT_NE(_handle->bmc_handle, (void *)nullptr);
+ 
+   EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
+ 
+diff --git a/testing/xfpga/test_thresold_c.cpp b/testing/xfpga/test_thresold_c.cpp
+index 68114498..0ee6e096 100644
+--- a/usr/testing/xfpga/test_thresold_c.cpp
++++ b/usr/testing/xfpga/test_thresold_c.cpp
+@@ -1,4 +1,4 @@
+-// Copyright(c) 2019, Intel Corporation
++// Copyright(c) 2019-2020, Intel Corporation
+ //
+ // Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ // modification, are permitted provided that the following conditions are met:
+@@ -194,7 +194,7 @@ TEST_P(metrics_bmc_threshold_c_p, metrics_threshold_4) {
+   EXPECT_NE(get_bmc_threshold_info(handle_, NULL, NULL), FPGA_OK);
+   EXPECT_NE(get_bmc_threshold_info(NULL, NULL, &num_thresholds), FPGA_OK);
+ 
+-  _handle->bmc_handle = dlopen("libmodbmc.so", RTLD_LAZY | RTLD_LOCAL);
++  _handle->bmc_handle = metrics_load_bmc_lib();
+   ASSERT_NE(_handle->bmc_handle, (void *)nullptr);
+ 
+   EXPECT_EQ(get_bmc_threshold_info(handle_, NULL, &num_thresholds), FPGA_OK);
+@@ -303,4 +303,4 @@ TEST_P(metrics_afu_threshold_c_p, metrics_threshold_6) {
+   EXPECT_NE(xfpga_fpgaGetMetricsThresholdInfo(handle_, NULL, NULL), FPGA_OK);
+ }
+ INSTANTIATE_TEST_CASE_P(metrics_threshold_c_c, metrics_afu_threshold_c_p,
+-    ::testing::ValuesIn(test_platform::mock_platforms({"dcp-vc"})));
+\ No newline at end of file
++    ::testing::ValuesIn(test_platform::mock_platforms({"dcp-vc"})));
+diff --git a/tools/base/fpgad/monitored_device.c b/tools/base/fpgad/monitored_device.c
+index a60d1546..38e1b66d 100644
+--- a/usr/tools/base/fpgad/monitored_device.c
++++ b/usr/tools/base/fpgad/monitored_device.c
+@@ -1,4 +1,4 @@
+-// Copyright(c) 2018-2019, Intel Corporation
++// Copyright(c) 2018-2020, Intel Corporation
+ //
+ // Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ // modification, are permitted provided that the following conditions are met:
+@@ -104,6 +104,31 @@ allocate_monitored_device(struct fpgad_config *config,
+ 	return d;
+ }
+ 
++STATIC void *mon_find_plugin(const char *libpath)
++{
++	char plugin_path[PATH_MAX];
++	const char *search_paths[] = {
++		"/usr/lib64/opae/",
++		"/usr/lib/opae/",
++		""
++	};
++	unsigned i;
++	void *dl_handle;
++
++	for (i = 0 ;
++		i < sizeof(search_paths) / sizeof(search_paths[0]) ;
++		++i) {
++		snprintf_s_ss(plugin_path, sizeof(plugin_path),
++				"%s%s", search_paths[i], libpath);
++
++		dl_handle = dlopen(plugin_path, RTLD_LAZY|RTLD_LOCAL);
++		if (dl_handle)
++			return dl_handle;
++	}
++
++	return NULL;
++}
++
+ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
+ {
+ 	unsigned i;
+@@ -231,8 +256,8 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
+ 			} else {
+ 				// Plugin hasn't been loaded.
+ 				// Load it now.
+-				d->dl_handle = dlopen(d->library_path,
+-							RTLD_LAZY|RTLD_LOCAL);
++				d->dl_handle =
++					mon_find_plugin(d->library_path);
+ 				if (!d->dl_handle) {
+ 					char *err = dlerror();
+ 					LOG("failed to load \"%s\" %s\n",
+diff --git a/tools/base/fpgad/plugins/fpgad-vc/CMakeLists.txt b/tools/base/fpgad/plugins/fpgad-vc/CMakeLists.txt
+index 28a5bff5..64727673 100644
+--- a/usr/tools/base/fpgad/plugins/fpgad-vc/CMakeLists.txt
++++ b/usr/tools/base/fpgad/plugins/fpgad-vc/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-## Copyright(c) 2019, Intel Corporation
++## Copyright(c) 2019-2020, Intel Corporation
+ ##
+ ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ ## modification, are permitted provided that the following conditions are met:
+@@ -60,5 +60,5 @@ target_link_libraries(fpgad-vc
+ set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
+ 
+ install(TARGETS fpgad-vc
+-  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
++  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}/opae
+   COMPONENT toolfpgad_vc)
+diff --git a/tools/base/fpgad/plugins/fpgad-xfpga/CMakeLists.txt b/tools/base/fpgad/plugins/fpgad-xfpga/CMakeLists.txt
+index 32148f76..187d4b2c 100644
+--- a/usr/tools/base/fpgad/plugins/fpgad-xfpga/CMakeLists.txt
++++ b/usr/tools/base/fpgad/plugins/fpgad-xfpga/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-## Copyright(c) 2018-2019, Intel Corporation
++## Copyright(c) 2018-2020, Intel Corporation
+ ##
+ ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+ ## modification, are permitted provided that the following conditions are met:
+@@ -60,5 +60,5 @@ target_link_libraries(fpgad-xfpga
+ set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
+ 
+ install(TARGETS fpgad-xfpga
+-  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
++  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}/opae
+   COMPONENT toolfpgad_xfpga)
+diff --git a/tools/base/fpgainfo/board.c b/tools/base/fpgainfo/board.c
+index 58b73255..bd657139 100644
+--- a/usr/tools/base/fpgainfo/board.c
++++ b/usr/tools/base/fpgainfo/board.c
+@@ -62,6 +62,30 @@ static platform_data platform_data_table[] = {
+ 	{ 0,      0,          NULL, NULL },
+ };
+ 
++void *find_plugin(const char *libpath)
++{
++	char plugin_path[PATH_MAX];
++	const char *search_paths[] = {
++		"/usr/lib64/opae/",
++		"/usr/lib/opae/",
++		""
++	};
++	unsigned i;
++	void *dl_handle;
++
++	for (i = 0 ;
++		i < sizeof(search_paths) / sizeof(search_paths[0]) ;
++		++i) {
++		snprintf_s_ss(plugin_path, sizeof(plugin_path),
++			      "%s%s", search_paths[i], libpath);
++
++		dl_handle = dlopen(plugin_path, RTLD_LAZY | RTLD_LOCAL);
++		if (dl_handle)
++			return dl_handle;
++	}
++
++	return NULL;
++}
+ 
+ fpga_result load_board_plugin(fpga_token token, void** dl_handle)
+ {
+@@ -115,7 +139,7 @@ fpga_result load_board_plugin(fpga_token token, void** dl_handle)
+ 				goto unlock_destroy;
+ 			}
+ 
+-			platform_data_table[i].dl_handle = dlopen(platform_data_table[i].board_plugin, RTLD_LAZY | RTLD_LOCAL);
++			platform_data_table[i].dl_handle = find_plugin(platform_data_table[i].board_plugin);
+ 			if (!platform_data_table[i].dl_handle) {
+ 				char *err = dlerror();
+ 				OPAE_ERR("Failed to load \"%s\" %s", platform_data_table[i].board_plugin, err ? err : "");
+diff --git a/tools/extra/pac/fpgabist/CMakeLists.txt b/tools/extra/pac/fpgabist/CMakeLists.txt
+index da3c61f9..9317c09d 100644
+--- a/usr/tools/extra/pac/fpgabist/CMakeLists.txt
++++ b/usr/tools/extra/pac/fpgabist/CMakeLists.txt
+@@ -34,11 +34,11 @@ set(PYTHON_SRC
+      bist_nlb3.py
+      fpgabist)
+ 
+-if(TBB_FOUND)
+-  add_subdirectory(dma)
+-else(TBB_FOUND)
+-  message(WARNING "Thread Building Blocks not found: not building fpgabist/dma.")
+-endif(TBB_FOUND)
++#if(TBB_FOUND)
++#  add_subdirectory(dma)
++#else(TBB_FOUND)
++#  message(WARNING "Thread Building Blocks not found: not building fpgabist/dma.")
++#endif(TBB_FOUND)
+ 
+ add_subdirectory(dma_vc)
+ add_subdirectory(bist)
+diff --git a/tools/extra/pac/fpgabist/bist_common.py b/tools/extra/pac/fpgabist/bist_common.py
+old mode 100644
+new mode 100755
+index 8de0cea2..7c6e9389
+--- a/usr/tools/extra/pac/fpgabist/bist_common.py
++++ b/usr/tools/extra/pac/fpgabist/bist_common.py
+@@ -1,3 +1,4 @@
++#!/usr/bin/env python
+ # Copyright(c) 2017, Intel Corporation
+ #
+ # Redistribution  and  use  in source  and  binary  forms,  with  or  without
+-- 
+2.24.1
+
