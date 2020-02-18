@@ -65,6 +65,21 @@ ldconfig
 %postun tools
 ldconfig
 
+
+%package tools-extra
+Summary:    OPAE extra tools binaries
+Group:      Development/Libraries
+
+%description tools-extra
+OPAE Extra Tools binaries
+
+%post tools-extra
+ldconfig
+
+%postun tools-extra
+ldconfig
+
+
 %package samples
 Summary:    OPAE samples apps
 Group:      Development/Libraries
@@ -184,6 +199,36 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_libdir}/libfpgad-api.so*
 %{_libdir}/opae/libfpgad-xfpga.so*
 %{_libdir}/opae/libfpgad-vc.so*
+
+%files tools-extra
+%defattr(-,root,root,-)
+%{_bindir}/bist_app
+%{_bindir}/bist_app.py
+%{_bindir}/bist_common.py
+%{_bindir}/bist_dma.py
+%{_bindir}/bist_def.py
+%{_bindir}/bist_nlb3.py
+%{_bindir}/bist_nlb0.py
+%{_bindir}/coreidle
+%{_bindir}/fpga_dma_vc_test
+%{_bindir}/bist
+%{_bindir}/fpgabist
+%{_bindir}/fpgadiag
+%{_bindir}/hssi_config
+%{_bindir}/hssi_loopback
+%{_bindir}/mmlink
+%{_bindir}/nlb0
+%{_bindir}/nlb3
+%{_bindir}/nlb7
+%{_bindir}/mactest
+%{_bindir}/fpgalpbk
+%{_bindir}/fpgastats
+%{_bindir}/ras
+%{_bindir}/userclk
+%{_libdir}/libhssi*
+%{_libdir}/libopae-c++-nlb.so*
+%{_libdir}/libopae-c++-utils.so*
+%dir %{_datadir}/opae
 
 %files samples
 %defattr(-,root,root,-)
