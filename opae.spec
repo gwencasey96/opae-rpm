@@ -106,7 +106,7 @@ OPAE samples
 mkdir -p _build
 cd _build
 %cmake ../usr -DBUILD_ASE=OFF -DOPAE_INSTALL_RPATH=OFF -DBUILD_LIBOPAE_PY=OFF
-make -j
+%make_build
 
 %install
 mkdir -p %{buildroot}%{_datadir}/opae
