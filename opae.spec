@@ -101,6 +101,14 @@ OPAE samples
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+# Remove hidden .clang-format
+rm usr/libopaecxx/.clang-format
+rm usr/libopae/.clang-format
+rm usr/testing/.clang-format
+rm usr/testing/xfpga/.clang-format
+rm usr/common/include/opae/cxx/.clang-format
+rm usr/tools/base/argsfilter/.clang-format
+rm usr/pyopae/.clang-format
 
 %build
 mkdir -p _build
