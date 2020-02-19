@@ -62,12 +62,9 @@ Group:      Development/Libraries
 %description tools
 OPAE Base Tools binaries
 
-%post tools
-ldconfig
+%post tools -p /sbin/ldconfig
 
-%postun tools
-ldconfig
-
+%postun tools -p /sbin/ldconfig
 
 %package tools-extra
 Summary:    OPAE extra tools binaries
@@ -76,12 +73,9 @@ Group:      Development/Libraries
 %description tools-extra
 OPAE Extra Tools binaries
 
-%post tools-extra
-ldconfig
+%post tools-extra -p /sbin/ldconfig
 
-%postun tools-extra
-ldconfig
-
+%postun tools-extra -p /sbin/ldconfig
 
 %package samples
 Summary:    OPAE samples apps
@@ -156,8 +150,7 @@ mkdir -p %{_sysconfdir}/ld.so.conf.d
 echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 ldconfig
 
-%postun
-ldconfig
+%postun -p /sbin/ldconfig
 
 %pre
 
