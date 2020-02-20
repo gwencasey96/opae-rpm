@@ -5,7 +5,7 @@ Release:        1
 License:        BSD
 Group:          Development/Libraries
 Vendor:         Intel Corporation
-Requires:       uuid, json-c, python
+Requires:       libuuid, json-c, python
 URL:            https://github.com/OPAE/%{name}-sdk
 Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{release}/%{name}-%{version}-%{release}.tar.gz
 Patch0:         0001-upstreaming-trim-down-to-the-files-for-1.4.1.patch 
@@ -50,26 +50,29 @@ the OPAE software stack.
 %package devel
 Summary:    OPAE headers, sample source, and documentation
 Group:      Development/Libraries
-Requires:   libuuid-devel
+Requires:   %{name},libuuid-devel
 
 %description devel
 OPAE headers, sample source, and documentation
 
-
 %package tools
 Summary:    OPAE base tools binaries
 Group:      Development/Libraries
+Requires:   %{name}
 
 %description tools
 OPAE Base Tools binaries
 
-%post tools -p /sbin/ldconfig
+%post tools
+ln -s %{_usr}/lib/systemd/system/fpgad.service %{_sysconfdir}/systemd/system/fpgad.service
+ldconfig
 
 %postun tools -p /sbin/ldconfig
 
 %package tools-extra
 Summary:    OPAE extra tools binaries
 Group:      Development/Libraries
+Requires:   %{name}
 
 %description tools-extra
 OPAE Extra Tools binaries
@@ -143,7 +146,7 @@ cp usr/samples/object_api.c %{buildroot}%{_usr}/src/opae/samples/
 cd _build
 make DESTDIR=%{buildroot} install
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/
-mv %{buildroot}%{_usr}/lib/systemd/system/fpgad.service %{buildroot}%{_sysconfdir}/systemd/system/fpgad.service
+#ln -s %{buildroot}%{_usr}/lib/systemd/system/fpgad.service %{buildroot}%{_sysconfdir}/systemd/system/fpgad.service
 
 %clean
 
@@ -202,7 +205,8 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_bindir}/fpgad*
 %config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
-%config(noreplace) %{_sysconfdir}/systemd/system/fpgad.service
+#%config(noreplace) %{_sysconfdir}/systemd/system/fpgad.service
+%{_usr}/lib/systemd/system/fpgad.service
 %{_libdir}/libfpgad-api.so.%{version}
 %{_libdir}/libfpgad-api.so.1
 %{_libdir}/opae/libfpgad-xfpga.so*
