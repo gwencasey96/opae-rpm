@@ -152,8 +152,6 @@ ldconfig
 
 %postun -p /sbin/ldconfig
 
-%pre
-
 %preun
 rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf 
 
