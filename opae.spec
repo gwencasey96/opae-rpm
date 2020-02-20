@@ -148,7 +148,6 @@ cp usr/samples/object_api.c %{buildroot}%{_usr}/src/opae/samples/
 cd _build
 make DESTDIR=%{buildroot} install
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/
-#ln -s %{buildroot}%{_usr}/lib/systemd/system/fpgad.service %{buildroot}%{_sysconfdir}/systemd/system/fpgad.service
 
 %clean
 
