@@ -87,8 +87,7 @@ Summary:    OPAE samples apps
 Group:      Development/Libraries
 
 %description samples
-OPAE samples
-
+OPAE sample applications
 
 %prep
 %setup -q -n %{name}-%{version}-%{release}
