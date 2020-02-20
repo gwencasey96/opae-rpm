@@ -1,4 +1,4 @@
-From 12d7e6f8cbf6e125f96bb11bc1d64d36a5c61fe7 Mon Sep 17 00:00:00 2001
+From 6ffef09e3cca8c66f88a7b7ac1fecf0f0ee94bc4 Mon Sep 17 00:00:00 2001
 From: Tom Rix <trix@redhat.com>
 Date: Tue, 18 Feb 2020 19:17:24 -0500
 Subject: [PATCH] Add INTEL_FPGA_API_VERSION version to shared objects.
@@ -7,45 +7,13 @@ Most of the shared objects are of the form <name>.so.<INTEL_API_VERSION>
 In this case <name>.so.1.4.0 with standard symlinks <name>.so.1 and
 <name>.so.  For those that do not, provide the versioning to make them
 consistent.
----
- libopae/CMakeLists.txt                              | 3 +++
- libopae/plugins/xfpga/CMakeLists.txt                | 3 +++
- libopae/plugins/xfpga/metrics/bmc/CMakeLists.txt    | 5 +++++
- libopaecxx/CMakeLists.txt                           | 5 +++++
- tools/base/fpgad/plugins/fpgad-vc/CMakeLists.txt    | 3 +++
- tools/base/fpgad/plugins/fpgad-xfpga/CMakeLists.txt | 3 +++
- 6 files changed, 22 insertions(+)
 
-diff --git a/libopae/plugins/xfpga/CMakeLists.txt b/libopae/plugins/xfpga/CMakeLists.txt
-index 3af0761c..d301dca0 100644
---- a/usr/libopae/plugins/xfpga/CMakeLists.txt
-+++ b/usr/libopae/plugins/xfpga/CMakeLists.txt
-@@ -102,6 +102,9 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
- 
- # Target properties
- set_property(TARGET xfpga PROPERTY C_STANDARD 99)
-+set_target_properties(xfpga PROPERTIES
-+  VERSION ${INTEL_FPGA_API_VERSION}
-+  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
- 
- # Add coverage flags
- if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-diff --git a/libopae/plugins/xfpga/metrics/bmc/CMakeLists.txt b/libopae/plugins/xfpga/metrics/bmc/CMakeLists.txt
-index 960b18f3..c5698b76 100644
---- a/usr/libopae/plugins/xfpga/metrics/bmc/CMakeLists.txt
-+++ b/usr/libopae/plugins/xfpga/metrics/bmc/CMakeLists.txt
-@@ -52,6 +52,11 @@ set_property(TARGET staticbmc PROPERTY POSITION_INDEPENDENT_CODE ON)
- 
- add_library(modbmc MODULE ${SRC})
- 
-+# Target properties
-+set_target_properties(modbmc PROPERTIES
-+  VERSION ${INTEL_FPGA_API_VERSION}
-+  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
-+
- target_link_libraries(modbmc
-     safestr
-     m
+Do not version *.so's marked as modules.
+---
+ libopae/CMakeLists.txt    | 3 +++
+ libopaecxx/CMakeLists.txt | 5 +++++
+ 2 files changed, 8 insertions(+)
+
 diff --git a/libopaecxx/CMakeLists.txt b/libopaecxx/CMakeLists.txt
 index dc0cb429..06ae1a60 100644
 --- a/usr/libopaecxx/CMakeLists.txt
@@ -62,34 +30,6 @@ index dc0cb429..06ae1a60 100644
  # Define headers for this library. PUBLIC headers are used for
  # compiling the library, and will be added to consumers' build
  # paths. Keep current directory private.
-diff --git a/tools/base/fpgad/plugins/fpgad-vc/CMakeLists.txt b/tools/base/fpgad/plugins/fpgad-vc/CMakeLists.txt
-index 28a5bff5..46d32fa7 100644
---- a/usr/tools/base/fpgad/plugins/fpgad-vc/CMakeLists.txt
-+++ b/usr/tools/base/fpgad/plugins/fpgad-vc/CMakeLists.txt
-@@ -49,6 +49,9 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
- 
- # Target properties
- set_property(TARGET fpgad-vc PROPERTY C_STANDARD 99)
-+set_target_properties(fpgad-vc PROPERTIES
-+  VERSION ${INTEL_FPGA_API_VERSION}
-+  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
- 
- target_link_libraries(fpgad-vc
-   safestr
-diff --git a/tools/base/fpgad/plugins/fpgad-xfpga/CMakeLists.txt b/tools/base/fpgad/plugins/fpgad-xfpga/CMakeLists.txt
-index 32148f76..8987352e 100644
---- a/usr/tools/base/fpgad/plugins/fpgad-xfpga/CMakeLists.txt
-+++ b/usr/tools/base/fpgad/plugins/fpgad-xfpga/CMakeLists.txt
-@@ -49,6 +49,9 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
- 
- # Target properties
- set_property(TARGET fpgad-xfpga PROPERTY C_STANDARD 99)
-+set_target_properties(fpgad-xfpga PROPERTIES
-+  VERSION ${INTEL_FPGA_API_VERSION}
-+  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
- 
- target_link_libraries(fpgad-xfpga
-   safestr
 -- 
 2.24.1
 
