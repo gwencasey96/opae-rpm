@@ -1,0 +1,41 @@
+From 627ad27c801dfc25677d00cd527dd71723ea2cc2 Mon Sep 17 00:00:00 2001
+From: Tom Rix <trix@redhat.com>
+Date: Thu, 20 Feb 2020 13:11:26 -0500
+Subject: [PATCH] Fix exec stack in fpga_dma_vc_test
+
+Found with rpmlint of the tools-extra package
+Reproduced standalone with
+
+readelf -lW .../bin/fpga_dma_vc_test | grep STACK
+  GNU_STACK      0x000000 0x0000000000000000 0x0000000000000000 0x000000 0x000000 RWE 0x10
+
+The 'E' in RWE is executable
+
+Fix with method described
+https://wiki.gentoo.org/wiki/Hardened/GNU_stack_quickstart
+
+Now result is
+readelf -lW .../bin/fpga_dma_vc_test | grep STACK
+  GNU_STACK      0x000000 0x0000000000000000 0x0000000000000000 0x000000 0x000000 RW  0x10
+---
+ tools/extra/pac/fpgabist/dma_vc/x86-sse2.S | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/tools/extra/pac/fpgabist/dma_vc/x86-sse2.S b/tools/extra/pac/fpgabist/dma_vc/x86-sse2.S
+index 8d514d40..43004e4b 100644
+--- a/usr/tools/extra/pac/fpgabist/dma_vc/x86-sse2.S
++++ b/usr/tools/extra/pac/fpgabist/dma_vc/x86-sse2.S
+@@ -263,6 +263,10 @@ asm_function aligned_block_fill_nt_sse2
+     ret
+ .endfunc
+ 
++/* No exec stack */	
++#if defined(__linux__) && defined(__ELF__)
++.section .note.GNU-stack,"",%progbits
++#endif
+ /*****************************************************************************/
+ 
+ #endif
+-- 
+2.24.1
+

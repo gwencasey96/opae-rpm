@@ -17,7 +17,8 @@ Patch6:         0001-Change-to-explictly-to-python3.patch
 Patch7:         fix-hwloc-20.patch
 Patch8:         disable-fpgadiag.patch
 Patch9:         python3-fpgabist.patch
-patch10:        0001-Add-INTEL_FPGA_API_VERSION-version-to-shared-objects.patch
+Patch10:        0001-Add-INTEL_FPGA_API_VERSION-version-to-shared-objects.patch
+Patch11:        0001-Fix-exec-stack-in-fpga_dma_vc_test.patch
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
@@ -97,6 +98,7 @@ OPAE samples
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 # Remove hidden .clang-format
 rm usr/libopaecxx/.clang-format
 rm usr/libopae/.clang-format
