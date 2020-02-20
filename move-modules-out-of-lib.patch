@@ -1,0 +1,24 @@
+diff -rup opae-1.4.0-1.orig/usr/tools/base/libboard/board_rc/CMakeLists.txt opae-1.4.0-1/usr/tools/base/libboard/board_rc/CMakeLists.txt
+--- opae-1.4.0-1.orig/usr/tools/base/libboard/board_rc/CMakeLists.txt	2020-02-20 11:34:39.365355824 -0500
++++ opae-1.4.0-1/usr/tools/base/libboard/board_rc/CMakeLists.txt	2020-02-20 16:55:41.481448958 -0500
+@@ -61,6 +61,6 @@ target_link_libraries(board_rc
+ set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
+ 
+ install(TARGETS board_rc
+-  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
++  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}/opae
+   COMPONENT opaeclib)
+ 
+Only in opae-1.4.0-1/usr/tools/base/libboard/board_rc: CMakeLists.txt~
+diff -rup opae-1.4.0-1.orig/usr/tools/base/libboard/board_vc/CMakeLists.txt opae-1.4.0-1/usr/tools/base/libboard/board_vc/CMakeLists.txt
+--- opae-1.4.0-1.orig/usr/tools/base/libboard/board_vc/CMakeLists.txt	2020-02-20 11:34:39.366355768 -0500
++++ opae-1.4.0-1/usr/tools/base/libboard/board_vc/CMakeLists.txt	2020-02-20 16:56:34.898439623 -0500
+@@ -61,6 +61,6 @@ target_link_libraries(board_vc
+ set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
+ 
+ install(TARGETS board_vc
+-  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
++  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}/opae
+   COMPONENT opaeclib)
+ 
+Only in opae-1.4.0-1/usr/tools/base/libboard/board_vc: CMakeLists.txt~

@@ -19,6 +19,7 @@ Patch8:         disable-fpgadiag.patch
 Patch9:         python3-fpgabist.patch
 Patch10:        0001-Add-INTEL_FPGA_API_VERSION-version-to-shared-objects.patch
 Patch11:        0001-Fix-exec-stack-in-fpga_dma_vc_test.patch
+Patch12:        move-modules-out-of-lib.patch
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
@@ -102,6 +103,7 @@ OPAE samples
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
+%patch12 -p1
 # Remove hidden .clang-format
 rm usr/libopaecxx/.clang-format
 rm usr/libopae/.clang-format
@@ -174,8 +176,8 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_libdir}/opae/libmodbmc.so*
 %{_libdir}/libbitstream.so.%{version}
 %{_libdir}/libbitstream.so.1
-%{_libdir}/libboard_rc.so*
-%{_libdir}/libboard_vc.so*
+%{_libdir}/opae/libboard_rc.so*
+%{_libdir}/opae/libboard_vc.so*
 
 %files devel
 %defattr(-,root,root,-)
@@ -205,7 +207,6 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_bindir}/fpgad*
 %config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
-#%config(noreplace) %{_sysconfdir}/systemd/system/fpgad.service
 %{_usr}/lib/systemd/system/fpgad.service
 %{_libdir}/libfpgad-api.so.%{version}
 %{_libdir}/libfpgad-api.so.1
