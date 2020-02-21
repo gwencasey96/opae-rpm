@@ -2,7 +2,7 @@ Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
 Version:        1.4.0
 Release:        1
-License:        BSD
+License:        BSD and MIT
 Group:          Development/Libraries
 Vendor:         Intel Corporation
 Requires:       libuuid, json-c, python
