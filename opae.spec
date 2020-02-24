@@ -3,7 +3,6 @@ Name:           opae
 Version:        1.4.0
 Release:        2
 License:        BSD and MIT
-Group:          Development/Libraries
 Requires:       libuuid, json-c, python3
 URL:            https://github.com/OPAE/%{name}-sdk
 Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}-%{version}-1.tar.gz
@@ -49,7 +48,6 @@ the OPAE software stack.
 
 %package devel
 Summary:    OPAE headers, sample source, and documentation
-Group:      Development/Libraries
 Requires:   libuuid-devel, %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
@@ -57,7 +55,6 @@ OPAE headers, sample source, and documentation
 
 %package tools
 Summary:    OPAE base tools binaries
-Group:      Development/Libraries
 Requires:   %{name}%{?_isa} = %{version}-%{release}
 
 %description tools
@@ -71,7 +68,6 @@ ldconfig
 
 %package tools-extra
 Summary:    OPAE extra tools binaries
-Group:      Development/Libraries
 Requires:   %{name}%{?_isa} = %{version}-%{release}
 
 %description tools-extra
@@ -83,7 +79,6 @@ OPAE Extra Tools binaries
 
 %package samples
 Summary:    OPAE samples apps
-Group:      Development/Libraries
 
 %description samples
 OPAE sample applications
@@ -241,6 +236,7 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 - Improve requires tag for subpackages
 - Remove explicit root owner
 - Remove vendor tag
+- Remove group tag
 
 * Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1
 - Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
