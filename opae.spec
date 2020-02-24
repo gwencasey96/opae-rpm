@@ -142,8 +142,6 @@ cd _build
 make DESTDIR=%{buildroot} install
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/
 
-%clean
-
 %post
 mkdir -p %{_sysconfdir}/ld.so.conf.d
 echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
@@ -228,7 +226,6 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %files samples
 %{_bindir}/hello_fpga
 
-
 %changelog
 * Mon Feb 24 2020 Tom Rix <trix@redhat.com> 1.4.0-2
 - Change to python3
@@ -237,6 +234,7 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 - Remove explicit root owner
 - Remove vendor tag
 - Remove group tag
+- Remove clean section
 
 * Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1
 - Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
