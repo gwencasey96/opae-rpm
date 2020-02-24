@@ -4,7 +4,6 @@ Version:        1.4.0
 Release:        2
 License:        BSD and MIT
 Group:          Development/Libraries
-Vendor:         Intel Corporation
 Requires:       libuuid, json-c, python3
 URL:            https://github.com/OPAE/%{name}-sdk
 Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}-%{version}-1.tar.gz
@@ -241,6 +240,7 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 - Remove release tag from upstream Source0 definition.
 - Improve requires tag for subpackages
 - Remove explicit root owner
+- Remove vendor tag
 
 * Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1
 - Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
