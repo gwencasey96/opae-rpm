@@ -1,13 +1,13 @@
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
 Version:        1.4.0
-Release:        1
+Release:        2
 License:        BSD and MIT
 Group:          Development/Libraries
 Vendor:         Intel Corporation
-Requires:       libuuid, json-c, python
+Requires:       libuuid, json-c, python3
 URL:            https://github.com/OPAE/%{name}-sdk
-Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{release}/%{name}-%{version}-%{release}.tar.gz
+Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}-%{version}-1.tar.gz
 Patch0:         0001-upstreaming-trim-down-to-the-files-for-1.4.1.patch 
 Patch1:         0001-upstreaming-fix-rpmlint-errors.patch
 Patch2:         0001-Trix-master-sa-1428.patch
@@ -23,12 +23,12 @@ Patch12:        move-modules-out-of-lib.patch
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
-BuildRequires:  python-devel
+BuildRequires:  python3-devel
 BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
 BuildRequires:  rpm-build
 BuildRequires:  hwloc-devel
-BuildRequires:  python-sphinx
+BuildRequires:  python3-sphinx
 BuildRequires:  doxygen
 
 %description
@@ -51,7 +51,7 @@ the OPAE software stack.
 %package devel
 Summary:    OPAE headers, sample source, and documentation
 Group:      Development/Libraries
-Requires:   %{name},libuuid-devel
+Requires:   libuuid-devel, %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
 OPAE headers, sample source, and documentation
@@ -59,7 +59,7 @@ OPAE headers, sample source, and documentation
 %package tools
 Summary:    OPAE base tools binaries
 Group:      Development/Libraries
-Requires:   %{name}
+Requires:   %{name}%{?_isa} = %{version}-%{release}
 
 %description tools
 OPAE Base Tools binaries
@@ -73,7 +73,7 @@ ldconfig
 %package tools-extra
 Summary:    OPAE extra tools binaries
 Group:      Development/Libraries
-Requires:   %{name}
+Requires:   %{name}%{?_isa} = %{version}-%{release}
 
 %description tools-extra
 OPAE Extra Tools binaries
@@ -90,7 +90,7 @@ Group:      Development/Libraries
 OPAE sample applications
 
 %prep
-%setup -q -n %{name}-%{version}-%{release}
+%setup -q -n %{name}-%{version}-1
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -161,7 +161,6 @@ ldconfig
 rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf 
 
 %files
-%defattr(-,root,root,-)
 %dir %{_datadir}/opae
 %doc %{_datadir}/opae/RELEASE_NOTES.md
 %{_libdir}/libopae-c.so.%{version}
@@ -178,7 +177,6 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_libdir}/opae/libboard_vc.so*
 
 %files devel
-%defattr(-,root,root,-)
 %dir %{_includedir}/opae
 %{_includedir}/opae/*
 %dir %{_includedir}/safe_string
@@ -198,7 +196,6 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_usr}/src/opae/cmake/modules/*
 
 %files tools
-%defattr(-,root,root,-)
 %{_bindir}/fpgaconf*
 %{_bindir}/fpgainfo*
 %{_bindir}/fpgametrics*
@@ -212,7 +209,6 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_libdir}/opae/libfpgad-vc.so*
 
 %files tools-extra
-%defattr(-,root,root,-)
 %{_bindir}/bist_app
 %{_bindir}/bist_app.py
 %{_bindir}/bist_common.py
@@ -236,11 +232,16 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %dir %{_datadir}/opae
 
 %files samples
-%defattr(-,root,root,-)
 %{_bindir}/hello_fpga
 
 
 %changelog
+* Mon Feb 24 2020 Tom Rix <trix@redhat.com> 1.4.0-2
+- Change to python3
+- Remove release tag from upstream Source0 definition.
+- Improve requires tag for subpackages
+- Remove explicit root owner
+
 * Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1
 - Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
 - Increased test cases and test coverage
