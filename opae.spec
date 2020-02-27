@@ -1,7 +1,7 @@
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
 Version:        1.4.0
-Release:        2
+Release:        3%{?dist}
 License:        BSD and MIT
 Requires:       libuuid, json-c, python3
 URL:            https://github.com/OPAE/%{name}-sdk
@@ -18,6 +18,7 @@ Patch9:         python3-fpgabist.patch
 Patch10:        0001-Add-INTEL_FPGA_API_VERSION-version-to-shared-objects.patch
 Patch11:        0001-Fix-exec-stack-in-fpga_dma_vc_test.patch
 Patch12:        move-modules-out-of-lib.patch
+Patch13:        change-safestr-to-shared.patch
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
@@ -62,9 +63,6 @@ OPAE Base Tools binaries
 
 %post tools
 ln -s %{_usr}/lib/systemd/system/fpgad.service %{_sysconfdir}/systemd/system/fpgad.service
-ldconfig
-
-%postun tools -p /sbin/ldconfig
 
 %package tools-extra
 Summary:    OPAE extra tools binaries
@@ -72,10 +70,6 @@ Requires:   %{name}%{?_isa} = %{version}-%{release}
 
 %description tools-extra
 OPAE Extra Tools binaries
-
-%post tools-extra -p /sbin/ldconfig
-
-%postun tools-extra -p /sbin/ldconfig
 
 %package samples
 Summary:    OPAE samples apps
@@ -97,6 +91,7 @@ OPAE sample applications
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
+%patch13 -p1
 # Remove hidden .clang-format
 rm usr/libopaecxx/.clang-format
 rm usr/libopae/.clang-format
@@ -145,9 +140,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/
 %post
 mkdir -p %{_sysconfdir}/ld.so.conf.d
 echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
-ldconfig
-
-%postun -p /sbin/ldconfig
 
 %preun
 rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf 
@@ -165,6 +157,8 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_libdir}/opae/libmodbmc.so*
 %{_libdir}/libbitstream.so.%{version}
 %{_libdir}/libbitstream.so.1
+%{_libdir}/libsafestr.so.%{version}
+%{_libdir}/libsafestr.so.1
 %{_libdir}/opae/libboard_rc.so*
 %{_libdir}/opae/libboard_vc.so*
 
@@ -173,7 +167,7 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_includedir}/opae/*
 %dir %{_includedir}/safe_string
 %{_includedir}/safe_string/safe_string.h
-%{_libdir}/libsafestr.a
+%{_libdir}/libsafestr.so
 %{_libdir}/libopae-c.so
 %{_libdir}/libopae-cxx-core.so
 %{_libdir}/libbmc.so
@@ -227,6 +221,11 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_bindir}/hello_fpga
 
 %changelog
+* Thu Feb 27 2020 Tom Rix <trix@redhat.com> 1.4.0-3
+- Remove ldconfig from post and postun
+- Append dist tag to release tag
+- Change libsafestr to shared library
+
 * Mon Feb 24 2020 Tom Rix <trix@redhat.com> 1.4.0-2
 - Change to python3
 - Remove release tag from upstream Source0 definition.
