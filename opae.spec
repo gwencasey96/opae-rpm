@@ -3,7 +3,7 @@ Name:           opae
 Version:        1.4.0
 Release:        3%{?dist}
 License:        BSD and MIT
-Requires:       libuuid, json-c, python3
+ExclusiveArch:  x86_64
 URL:            https://github.com/OPAE/%{name}-sdk
 Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}-%{version}-1.tar.gz
 Patch0:         0001-upstreaming-trim-down-to-the-files-for-1.4.1.patch 
@@ -27,8 +27,9 @@ BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
 BuildRequires:  rpm-build
 BuildRequires:  hwloc-devel
-BuildRequires:  python3-sphinx
 BuildRequires:  doxygen
+BuildRequires:  systemd-rpm-macros
+BuildRequires:  systemd
 
 %description
 Open Programmable Acceleration Engine (OPAE) is a software framework
@@ -47,35 +48,13 @@ streamlined and easy-to-use interface for software applications to
 discover, access, and manage FPGA devices and accelerators using
 the OPAE software stack.
 
+%license LICENSE COPYING
 %package devel
 Summary:    OPAE headers, sample source, and documentation
 Requires:   libuuid-devel, %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
-OPAE headers, sample source, and documentation
-
-%package tools
-Summary:    OPAE base tools binaries
-Requires:   %{name}%{?_isa} = %{version}-%{release}
-
-%description tools
-OPAE Base Tools binaries
-
-%post tools
-ln -s %{_usr}/lib/systemd/system/fpgad.service %{_sysconfdir}/systemd/system/fpgad.service
-
-%package tools-extra
-Summary:    OPAE extra tools binaries
-Requires:   %{name}%{?_isa} = %{version}-%{release}
-
-%description tools-extra
-OPAE Extra Tools binaries
-
-%package samples
-Summary:    OPAE samples apps
-
-%description samples
-OPAE sample applications
+OPAE headers, tools, sample source, and documentation
 
 %prep
 %setup -q -n %{name}-%{version}-1
@@ -105,11 +84,13 @@ rm usr/pyopae/.clang-format
 mkdir -p _build
 cd _build
 %cmake ../usr -DBUILD_ASE=OFF -DOPAE_INSTALL_RPATH=OFF -DBUILD_LIBOPAE_PY=OFF
-%make_build
+%make_build %{?_smp_mflags}
 
 %install
 mkdir -p %{buildroot}%{_datadir}/opae
 cp ./usr/RELEASE_NOTES.md %{buildroot}%{_datadir}/opae/RELEASE_NOTES.md
+cp ./usr/LICENSE %{buildroot}%{_datadir}/opae/LICENSE
+cp ./usr/COPYING %{buildroot}%{_datadir}/opae/COPYING
 
 mkdir -p %{buildroot}%{_usr}/src/opae/cmake/modules
 for s in FindDBus.cmake \
@@ -141,60 +122,46 @@ mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/
 mkdir -p %{_sysconfdir}/ld.so.conf.d
 echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 
-%preun
-rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf 
-
 %files
 %dir %{_datadir}/opae
 %doc %{_datadir}/opae/RELEASE_NOTES.md
+%doc %{_datadir}/opae/LICENSE
+%doc %{_datadir}/opae/COPYING
+%{_libdir}/libbitstream.so.%{version}
+%{_libdir}/libbitstream.so.1
+%{_libdir}/libbmc.so.%{version}
+%{_libdir}/libbmc.so.1
+%{_libdir}/libfpgad-api.so.%{version}
+%{_libdir}/libfpgad-api.so.1
+%{_libdir}/libhssi-io.so.%{version}
+%{_libdir}/libhssi-io.so.1
 %{_libdir}/libopae-c.so.%{version}
 %{_libdir}/libopae-c.so.1
 %{_libdir}/libopae-cxx-core.so.%{version}
 %{_libdir}/libopae-cxx-core.so.1
-%{_libdir}/opae/libxfpga.so*
-%{_libdir}/libbmc.so.%{version}
-%{_libdir}/libbmc.so.1
-%{_libdir}/opae/libmodbmc.so*
-%{_libdir}/libbitstream.so.%{version}
-%{_libdir}/libbitstream.so.1
+%{_libdir}/libopae-c++-utils.so.%{version}
+%{_libdir}/libopae-c++-utils.so.1
 %{_libdir}/libsafestr.so.%{version}
 %{_libdir}/libsafestr.so.1
-%{_libdir}/opae/libboard_rc.so*
-%{_libdir}/opae/libboard_vc.so*
+
+%post devel
+%systemd_post fpgad.service
+
+%preun devel
+%systemd_preun fpgad.service
 
 %files devel
 %dir %{_includedir}/opae
-%{_includedir}/opae/*
 %dir %{_includedir}/safe_string
-%{_includedir}/safe_string/safe_string.h
-%{_libdir}/libsafestr.so
-%{_libdir}/libopae-c.so
-%{_libdir}/libopae-cxx-core.so
-%{_libdir}/libbmc.so
-%{_libdir}/libbitstream.so
-%{_libdir}/libfpgad-api.so
-%{_libdir}/libhssi-io.so
-%{_libdir}/libopae-c++-utils.so
+%dir %{_sysconfdir}/opae
+%dir %{_libdir}/opae
 %dir %{_usr}/src/opae
-%{_usr}/src/opae/samples/hello_fpga.c
-%{_usr}/src/opae/samples/hello_events.c
-%{_usr}/src/opae/samples/object_api.c
-%{_usr}/src/opae/cmake/modules/*
-
-%files tools
-%{_bindir}/fpgaconf*
-%{_bindir}/fpgainfo*
-%{_bindir}/fpgametrics*
-%{_bindir}/fpgad*
+%dir %{_usr}/src/opae/cmake
+%dir %{_usr}/src/opae/cmake/modules
+%dir %{_usr}/src/opae/samples
 %config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
-%{_usr}/lib/systemd/system/fpgad.service
-%{_libdir}/libfpgad-api.so.%{version}
-%{_libdir}/libfpgad-api.so.1
-%{_libdir}/opae/libfpgad-xfpga.so*
-%{_libdir}/opae/libfpgad-vc.so*
-
-%files tools-extra
+%{_bindir}/bist
 %{_bindir}/bist_app
 %{_bindir}/bist_app.py
 %{_bindir}/bist_common.py
@@ -203,28 +170,56 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_bindir}/bist_nlb3.py
 %{_bindir}/bist_nlb0.py
 %{_bindir}/coreidle
+%{_bindir}/fpgaconf*
+%{_bindir}/fpgainfo*
+%{_bindir}/fpgametrics*
+%{_bindir}/fpgad*
 %{_bindir}/fpga_dma_vc_test
-%{_bindir}/bist
 %{_bindir}/fpgabist
+%{_bindir}/hello_fpga
 %{_bindir}/hssi_config
 %{_bindir}/hssi_loopback
 %{_bindir}/mmlink
 %{_bindir}/ras
 %{_bindir}/userclk
-%{_libdir}/libhssi-io.so.%{version}
-%{_libdir}/libhssi-io.so.1
-%{_libdir}/libopae-c++-utils.so.%{version}
-%{_libdir}/libopae-c++-utils.so.1
-%dir %{_datadir}/opae
-
-%files samples
-%{_bindir}/hello_fpga
+%{_includedir}/opae/*
+%{_includedir}/safe_string/safe_string.h
+%{_libdir}/libbitstream.so
+%{_libdir}/libbmc.so
+%{_libdir}/libfpgad-api.so
+%{_libdir}/libhssi-io.so
+%{_libdir}/libopae-c.so
+%{_libdir}/libopae-cxx-core.so
+%{_libdir}/libopae-c++-utils.so
+%{_libdir}/libsafestr.so
+%{_libdir}/opae/libboard_rc.so*
+%{_libdir}/opae/libboard_vc.so*
+%{_libdir}/opae/libfpgad-vc.so*
+%{_libdir}/opae/libfpgad-xfpga.so*
+%{_libdir}/opae/libmodbmc.so*
+%{_libdir}/opae/libxfpga.so*
+%{_usr}/src/opae/samples/hello_fpga.c
+%{_usr}/src/opae/samples/hello_events.c
+%{_usr}/src/opae/samples/object_api.c
+%{_usr}/src/opae/cmake/modules/*
+%{_unitdir}/fpgad.service
 
 %changelog
 * Thu Feb 27 2020 Tom Rix <trix@redhat.com> 1.4.0-3
 - Remove ldconfig from post and postun
 - Append dist tag to release tag
 - Change libsafestr to shared library
+- Set license tag to location of license files
+- Remove phython3-sphnix build dependency.
+- Consolidate samples,tools,tools-extra pkgs into devel
+- Improve pkg created dir specification
+- Set x86_64 as ExclusiveArch
+- Change to runtime to implicit dependency on build *-devel
+- Remove preun rm of opae-c.conf
+- Use systemd rpm macros
+- Add _smp_mflags to build
+- Use unitdir for fpgad.service path
+- Distribute the license and copying files
 
 * Mon Feb 24 2020 Tom Rix <trix@redhat.com> 1.4.0-2
 - Change to python3
