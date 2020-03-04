@@ -4,7 +4,7 @@ date
 cat /etc/redhat-release
 
 dist=fc31
-ver=3
+ver=4
 
 cd ~/rpmbuild/SRPMS
 echo "opae-1.4.0-${ver}.${dist}.src.rpm"
