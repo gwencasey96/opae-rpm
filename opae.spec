@@ -1,7 +1,7 @@
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
 Version:        1.4.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 License:        BSD and MIT
 ExclusiveArch:  x86_64
 URL:            https://github.com/OPAE/%{name}-sdk
@@ -19,6 +19,7 @@ Patch10:        0001-Add-INTEL_FPGA_API_VERSION-version-to-shared-objects.patch
 Patch11:        0001-Fix-exec-stack-in-fpga_dma_vc_test.patch
 Patch12:        move-modules-out-of-lib.patch
 Patch13:        change-safestr-to-shared.patch
+Patch14:        improve-library-link.patch
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
@@ -71,6 +72,7 @@ OPAE headers, tools, sample source, and documentation
 %patch11 -p1
 %patch12 -p1
 %patch13 -p1
+%patch14 -p1
 # Remove hidden .clang-format
 rm usr/libopaecxx/.clang-format
 rm usr/libopae/.clang-format
@@ -205,6 +207,9 @@ echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_unitdir}/fpgad.service
 
 %changelog
+* Tue Mar 3 2020 Tom Rix <trix@redhat.com> 1.4.0-4
+- Add libraries to link of libopae-cxx-core libopae-c++-utils
+
 * Thu Feb 27 2020 Tom Rix <trix@redhat.com> 1.4.0-3
 - Remove ldconfig from post and postun
 - Append dist tag to release tag

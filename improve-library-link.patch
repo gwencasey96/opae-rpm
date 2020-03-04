@@ -1,0 +1,36 @@
+diff -ur opae-1.4.0-1.orig/usr/libopaecxx/CMakeLists.txt opae-1.4.0-1/usr/libopaecxx/CMakeLists.txt
+--- opae-1.4.0-1.orig/usr/libopaecxx/CMakeLists.txt	2020-03-04 00:08:18.426633335 +0100
++++ opae-1.4.0-1/usr/libopaecxx/CMakeLists.txt	2020-03-04 01:55:13.945064964 +0100
+@@ -58,7 +58,7 @@
+                     src/version.cpp)
+ 
+ add_library(opae-cxx-core SHARED ${OPAECXXCORE_SRC})
+-target_link_libraries(opae-cxx-core uuid)
++target_link_libraries(opae-cxx-core opae-c ${CMAKE_THREAD_LIBS_INIT} safestr uuid)
+ 
+ set_target_properties(opae-cxx-core PROPERTIES
+   VERSION ${INTEL_FPGA_API_VERSION}
+diff -ur opae-1.4.0-1.orig/usr/tools/base/fpgad/api/CMakeLists.txt opae-1.4.0-1/usr/tools/base/fpgad/api/CMakeLists.txt
+--- opae-1.4.0-1.orig/usr/tools/base/fpgad/api/CMakeLists.txt	2020-03-04 00:08:18.413633204 +0100
++++ opae-1.4.0-1/usr/tools/base/fpgad/api/CMakeLists.txt	2020-03-04 01:59:20.925544720 +0100
+@@ -57,6 +57,7 @@
+   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
+ 
+ target_link_libraries(fpgad-api
++  safestr
+   ${CMAKE_THREAD_LIBS_INIT}
+   ${libjson-c_LIBRARIES})
+ 
+Only in opae-1.4.0-1/usr/tools/base/fpgad/api: CMakeLists.txt~
+diff -ur opae-1.4.0-1.orig/usr/tools/extra/c++utils/CMakeLists.txt opae-1.4.0-1/usr/tools/extra/c++utils/CMakeLists.txt
+--- opae-1.4.0-1.orig/usr/tools/extra/c++utils/CMakeLists.txt	2020-03-04 00:08:18.398633053 +0100
++++ opae-1.4.0-1/usr/tools/extra/c++utils/CMakeLists.txt	2020-03-04 01:55:13.945064964 +0100
+@@ -45,7 +45,7 @@
+   VERSION ${INTEL_FPGA_API_VERSION}
+   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
+ 
+-target_link_libraries(opae-c++-utils ${libjson-c_LIBRARIES})
++target_link_libraries(opae-c++-utils ${CMAKE_THREAD_LIBS_INIT} ${libjson-c_LIBRARIES})
+ 
+ install(TARGETS opae-c++-utils
+     LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
