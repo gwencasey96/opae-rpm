@@ -86,7 +86,7 @@ rm usr/pyopae/.clang-format
 mkdir -p _build
 cd _build
 %cmake ../usr -DBUILD_ASE=OFF -DOPAE_INSTALL_RPATH=OFF -DBUILD_LIBOPAE_PY=OFF
-%make_build %{?_smp_mflags}
+%make_build
 
 %install
 mkdir -p %{buildroot}%{_datadir}/opae
@@ -209,6 +209,7 @@ echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %changelog
 * Tue Mar 3 2020 Tom Rix <trix@redhat.com> 1.4.0-4
 - Add libraries to link of libopae-cxx-core libopae-c++-utils
+- Remove unneeded build flag _smp_mflags
 
 * Thu Feb 27 2020 Tom Rix <trix@redhat.com> 1.4.0-3
 - Remove ldconfig from post and postun
