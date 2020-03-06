@@ -1,7 +1,7 @@
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
 Version:        1.4.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 License:        BSD and MIT
 ExclusiveArch:  x86_64
 URL:            https://github.com/OPAE/%{name}-sdk
@@ -49,7 +49,6 @@ streamlined and easy-to-use interface for software applications to
 discover, access, and manage FPGA devices and accelerators using
 the OPAE software stack.
 
-%license LICENSE COPYING
 %package devel
 Summary:    OPAE headers, sample source, and documentation
 Requires:   libuuid-devel, %{name}%{?_isa} = %{version}-%{release}
@@ -116,8 +115,7 @@ cp usr/samples/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/
 cp usr/samples/hello_events.c %{buildroot}%{_usr}/src/opae/samples/
 cp usr/samples/object_api.c %{buildroot}%{_usr}/src/opae/samples/
 
-cd _build
-make DESTDIR=%{buildroot} install
+%make_install -C _build
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/
 
 %post
@@ -127,8 +125,8 @@ echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %files
 %dir %{_datadir}/opae
 %doc %{_datadir}/opae/RELEASE_NOTES.md
-%doc %{_datadir}/opae/LICENSE
-%doc %{_datadir}/opae/COPYING
+%license %{_datadir}/opae/LICENSE
+%license %{_datadir}/opae/COPYING
 %{_libdir}/libbitstream.so.%{version}
 %{_libdir}/libbitstream.so.1
 %{_libdir}/libbmc.so.%{version}
@@ -207,6 +205,10 @@ echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_unitdir}/fpgad.service
 
 %changelog
+* Fri Mar 6 2020 Tom Rix <trix@redhat.com> 1.4.0-5
+- Use make_install macro
+- Use license tag correctly
+
 * Tue Mar 3 2020 Tom Rix <trix@redhat.com> 1.4.0-4
 - Add libraries to link of libopae-cxx-core libopae-c++-utils
 - Remove unneeded build flag _smp_mflags
