@@ -1,7 +1,7 @@
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
 Version:        1.4.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 License:        BSD and MIT
 ExclusiveArch:  x86_64
 URL:            https://github.com/OPAE/%{name}-sdk
@@ -22,7 +22,7 @@ Patch13:        change-safestr-to-shared.patch
 Patch14:        improve-library-link.patch
 
 BuildRequires:  gcc, gcc-c++
-BuildRequires:  cmake
+BuildRequires:  cmake, make
 BuildRequires:  python3-devel
 BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
@@ -205,6 +205,9 @@ echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_unitdir}/fpgad.service
 
 %changelog
+* Tue Mar 10 2020 Tom Rix <trix@redhat.com> 1.4.0-6
+- Add make as a dependency
+
 * Fri Mar 6 2020 Tom Rix <trix@redhat.com> 1.4.0-5
 - Use make_install macro
 - Use license tag correctly
